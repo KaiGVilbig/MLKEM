@@ -4,10 +4,21 @@ project(mlkem_lib)
 set(CMAKE_CXX_STANDARD 17)
 
 # Define the shared library
-add_library(mlkem SHARED src/mlkem.cpp)
+add_library(mlkem SHARED src/mlkem.cpp "include/random.h" "src/random.cpp" "include/ntt.h" "src/ntt.cpp" "src/samplePolySBD.cpp"  "src/keygen_internal.cpp" "include/byteEncode.h" "src/byteEncode.cpp" "include/kpke.h" "src/kpke.cpp"  "include/mlkem_internal.h" "src/mlkem_internal.cpp")
 
 # Include directory
 target_include_directories(mlkem PUBLIC include)
+
+# Add OpenSSL library
+find_package(OpenSSL REQUIRED)
+target_link_libraries(mlkem PRIVATE OpenSSL::Crypto)
+
+# Add test executable
+add_executable(mlkem_tests tests/test.cpp "src/random.cpp" "include/ntt.h" "src/ntt.cpp" "src/samplePolySBD.cpp"  "src/keygen_internal.cpp" "include/byteEncode.h" "src/byteEncode.cpp" "include/kpke.h" "src/kpke.cpp"  "include/mlkem_internal.h" "src/mlkem_internal.cpp")
+
+target_include_directories(mlkem_tests PRIVATE include)
+target_link_libraries(mlkem_tests PRIVATE mlkem)
+target_link_libraries(mlkem_tests PRIVATE OpenSSL::Crypto)
 
 # Set correct output file extensions
 if(WIN32)
