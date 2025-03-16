@@ -5,10 +5,10 @@ void kpkeKeyGen() {
 	std::cout << "[INFO] kpkeKeyGen() called\n";
 }
 
-void kpkeEncode() {
+void kpkeEncrypt() {
 	std::cout << "[INFO] kpkeEncode() called\n";
 }
 
-void kpkeDecode() {
+void kpkeDecrypt() {
 	std::cout << "[INFO] kpkeDecode() called\n";
 }

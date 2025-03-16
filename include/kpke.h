@@ -3,5 +3,5 @@
 #include "byteEncode.h"
 
 void kpkeKeyGen();
-void kpkeEncode();
-void kpkeDecode();
+void kpkeEncrypt();
+void kpkeDecrypt();

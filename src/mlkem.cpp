@@ -1,5 +1,5 @@
 ﻿#include "mlkem.h"
-#include "keygen_internal.h"
+#include "mlkem_internal.h"
 #include "random.h"
 #include <iostream>
 #include <vector>
@@ -16,12 +16,15 @@ extern "C" {
     }
 
     EXPORT_API void kemEncaps() {
-
-        std::cout << "Encapsulation not yet implemented." << std::endl;
+        std::cout << "[INFO] ML-KEM.Encaps() called\n";
+        kemEncapsInternal();
+        std::cout << "[INFO] ML-KEM.Encaps() completed\n";
     }
 
     EXPORT_API void kemDecaps() {
-        std::cout << "Decapsulation not yet implemented." << std::endl;
+        std::cout << "[INFO] ML-KEM.Decaps() called\n";
+        kemDecapsInternal();
+        std::cout << "[INFO] ML-KEM.Decaps() completed\n";
     }
 
 }
