@@ -26,6 +26,13 @@ Ensure the following dependencies are installed:
 ```sh
 choco install openssl cmake
 ```
+or
+```sh
+winget search openssl
+winget install ShiningLight.OpenSSL.Light
+```
+
+Once OpenSSL is installed, add its path to your PATH environment variable
 
 **Linux**
 ```sh
@@ -38,8 +45,8 @@ Follow these steps to build the project:
 
 1. **Clone the Repository**
 ```sh
-git clone <repository_url>
-cd mlkem_project
+git clone git@github.com:KaiGVilbig/MLKEM.git
+cd MLKEM
 ```
 
 2. **Configure the Build System**
@@ -79,21 +86,32 @@ cmake --build build --config Debug
 
 Expected Output:
 ```
+[TEST] Running KeyGen Test...
 [INFO] ML-KEM.KeyGen() called
 [INFO] ML-KEM.KeyGen_internal() called
-[INFO] SamplePolyCBD() called
-[INFO] NTT() called
-[INFO] inverseNTT() called
-[INFO] ByteEncode() called
-[INFO] ByteDecode() called
+[INFO] kpkeKeyGen() called
 [INFO] ML-KEM.KeyGen_internal() completed
 [INFO] ML-KEM.KeyGen() completed
+[PASS] KeyGen executed successfully.
+
+[TEST] Running Encapsulation Test...
+[INFO] ML-KEM.Encaps() called
+[INFO] ML-KEM.Encaps_internal() called
+[INFO] kpkeEncode() called
+[INFO] ML-KEM.Encaps_internal() completed
+[INFO] ML-KEM.Encaps() completed
+[PASS] Encapsulation executed successfully.
+
+[TEST] Running Decapsulation Test...
+[INFO] ML-KEM.Decaps() called
+[INFO] ML-KEM.Decaps_internal() called
+[INFO] kpkeDecode() called
+[INFO] kpkeEncode() called
+[INFO] ML-KEM.Decaps_internal() completed
+[INFO] ML-KEM.Decaps() completed
+[PASS] Decapsulation executed successfully.
 ```
 
 ## 📄 Known Issues
 - Current implementation includes placeholder logic for most cryptographic functions, pending full algorithm integration.
 - Ensure OpenSSL libraries are correctly linked when building the project.
-
-## 📬 Contact
-For questions, issues, or contributions, feel free to open an issue or submit a pull request.
-
