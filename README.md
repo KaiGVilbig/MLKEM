@@ -115,3 +115,4 @@ Expected Output:
 ## 📄 Known Issues
 - Current implementation includes placeholder logic for most cryptographic functions, pending full algorithm integration.
 - Ensure OpenSSL libraries are correctly linked when building the project.
+- have not tested other methods of building on windows such as g++, or build systems like Ninja
