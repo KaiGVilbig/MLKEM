@@ -23,14 +23,9 @@ Ensure the following dependencies are installed:
 
 ### Installing Dependencies
 **Windows**
-```sh
-choco install openssl cmake
-```
-or
-```sh
-winget search openssl
-winget install ShiningLight.OpenSSL.Light
-```
+Install OpenSSL from [Shining Light Productions](https://slproweb.com/products/Win32OpenSSL.html).
+Install the full version, not the Light version as the Light version does not include /lib and /include that 
+CMake uses
 
 Once OpenSSL is installed, add its path to your PATH environment variable
 
