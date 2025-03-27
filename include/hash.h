@@ -1,8 +1,10 @@
 #ifndef HASH_H
 #define HASH_H
+#include <openssl/evp.h>
+#include <vector>
 
-void H();
-void J();
-void G();
+std::vector<uint8_t> H(std::vector<uint8_t>);
+std::vector<uint8_t> J(std::vector<uint8_t>);
+std::pair<std::vector<uint8_t>, std::vector<uint8_t>> G(std::vector<uint8_t>);
 
 #endif
