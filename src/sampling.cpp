@@ -1,4 +1,4 @@
-#include "samplePolyCBD.h"
+#include "sampling.h"
 #include <iostream>
 
 void samplePolyCBD() {

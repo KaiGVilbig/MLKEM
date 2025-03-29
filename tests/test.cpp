@@ -63,6 +63,51 @@ void testBitsBytesConversions() {
     }
 }
 
+void testByteEncodeDecode() {
+    // Test for d = 1
+    std::cout << "[TEST] Running Byte encode/decode function Test for d = 1, 4, 12...\n";
+    std::vector<uint8_t> input1(256, 0);
+    for (int i = 0; i < 256; i++) {
+        input1[i] = i % 2;
+    }
+    auto encoded1 = byteEncode(input1, 1);
+    auto decoded1 = byteDecode(encoded1, 1);
+    if (decoded1 == input1) {
+        std::cout << "[PASS] Byte encode/decode for d = 1 executed successfully\n";
+    }
+    else {
+        std::cout << "[FAIL] Byte encode/decode for d = 1 failed: Result did not equal known expected output\n";
+    }
+
+    // Test for d = 4
+    std::vector<uint8_t> input4(256, 0);
+    for (int i = 0; i < 256; i++) {
+        input4[i] = i % 16;
+    }
+    auto encoded4 = byteEncode(input4, 4);
+    auto decoded4 = byteDecode(encoded4, 4);
+    if (decoded1 == input1) {
+        std::cout << "[PASS] Byte encode/decode for d = 4 executed successfully\n";
+    }
+    else {
+        std::cout << "[FAIL] Byte encode/decode for d = 4 failed: Result did not equal known expected output\n";
+    }
+
+    // Test for d = 12
+    std::vector<uint8_t> input12(256, 0);
+    for (int i = 0; i < 256; i++) {
+        input12[i] = (i * 17) % 3329;
+    }
+    auto encoded12 = byteEncode(input12, 12);
+    auto decoded12 = byteDecode(encoded12, 12);
+    if (decoded1 == input1) {
+        std::cout << "[PASS] Byte encode/decode for d = 12 executed successfully\n\n";
+    }
+    else {
+        std::cout << "[FAIL] Byte encode/decode for d = 12 failed: Result did not equal known expected output\n\n";
+    }
+}
+
 void testHashFunctions() {
     std::vector<uint8_t> input = { 't', 'e', 's', 't' }; // "test" in ASCII
     std::vector<uint8_t> expectedH = {
@@ -138,7 +183,7 @@ int main() {
 
     // Test the bits to bytes and bytes to bits conversions
     testBitsBytesConversions();
-
+    testByteEncodeDecode();
     // Test the hash functions H, J and G
     testHashFunctions();
 

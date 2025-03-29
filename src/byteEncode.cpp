@@ -1,46 +1,29 @@
 #include "byteEncode.h"
 #include <iostream>
 
-std::vector<uint8_t> byteEncode(std::vector<uint16_t> input, size_t d) {
-    if (d < 1 || d > 12) {
-        throw std::invalid_argument("d must be between 1 and 12");
-    }
-
-    size_t bitLength = input.size() * d;
-    size_t byteLength = (bitLength + 7) / 8;
-    std::vector<uint8_t> output(byteLength, 0);
-
-    size_t bitPos = 0;
-    for (size_t i = 0; i < input.size(); ++i) {
-        uint16_t value = input[i];
-        for (size_t j = 0; j < d; ++j) {
-            size_t byteIndex = bitPos / 8;
-            size_t bitOffset = bitPos % 8;
-            output[byteIndex] |= ((value >> j) & 1) << bitOffset;
-            bitPos++;
+std::vector<uint8_t> byteEncode(const std::vector<uint8_t> F, uint8_t d) {
+    std::vector<uint8_t> b(256 * d, 0);
+    for (int i = 0; i < 256; i++) {
+        uint16_t a = F[i];
+        for (int j = 0; j < d; j++) {
+            b[i * d + j] = a & 1;
+            a >>= 1;
         }
     }
-    return output;
+    return bitsToBytes(b);
 }
 
-std::vector<uint16_t> byteDecode(std::vector<uint8_t> input, size_t d, size_t numElements) {
-    if (d < 1 || d > 12) {
-        throw std::invalid_argument("d must be between 1 and 12");
-    }
-
-    std::vector<uint16_t> output(numElements, 0);
-    size_t bitPos = 0;
-    for (size_t i = 0; i < numElements; ++i) {
-        uint16_t value = 0;
-        for (size_t j = 0; j < d; ++j) {
-            size_t byteIndex = bitPos / 8;
-            size_t bitOffset = bitPos % 8;
-            value |= ((input[byteIndex] >> bitOffset) & 1) << j;
-            bitPos++;
+std::vector<uint8_t> byteDecode(const std::vector<uint8_t> B, uint8_t d) {
+    std::vector<uint8_t> F(256, 0);
+    std::vector<uint8_t> b = bytesToBits(B);
+    uint16_t m = (d < 12) ? (1 << d) : 3329;
+    for (int i = 0; i < 256; i++) {
+        for (int j = 0; j < d; j++) {
+            F[i] |= (b[i * d + j] << j);
         }
-        output[i] = value;
+        F[i] %= m;
     }
-    return output;
+    return F;
 }
 
 std::vector<uint8_t> bitsToBytes(std::vector<uint8_t> b) {
