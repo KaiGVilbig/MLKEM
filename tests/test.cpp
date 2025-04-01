@@ -1,6 +1,7 @@
-#include "mlkem.h"
+﻿#include "mlkem.h"
 #include "byteEncode.h"
 #include "hash.h"
+#include "sampling.h"
 
 #include <iostream>
 #include <vector>
@@ -176,6 +177,70 @@ void testHashFunctions() {
 
 }
 
+void testSampleNTT() {
+    // Known input (34 bytes)
+    std::vector<uint8_t> known_input = {
+        0x7A, 0x21, 0xF3, 0x88, 0x15, 0xC2, 0xB7, 0xDE,
+        0x3C, 0x94, 0x67, 0x52, 0xAB, 0xE0, 0x11, 0x39,
+        0xA6, 0xF1, 0x4C, 0xD5, 0x20, 0x7B, 0x99, 0x1D,
+        0x55, 0xE4, 0x6B, 0x8F, 0xCA, 0x3E, 0x42, 0xD0,
+        0xB1, 0x25
+    };
+
+    // Expected output (NTT-transformed 256-coefficient polynomial)
+    std::vector<uint16_t> expected_output = {
+        3652,  211,  1981, 4093,  108, 2220, 1857, 3902,
+        1207, 3945,  543, 3345, 1840,  983, 2573,  419,
+        3908, 1402, 3231,  356, 2871, 2024,  628,  109,
+        3742, 3219, 1097,  924, 3128, 2242, 1633,  707,
+        2291,  813, 2564, 4018,  102, 2711,  762, 1503,
+        2417, 1456, 3731,  781, 1965,  554, 1337, 4092,
+        1287,  910, 3924, 3325, 2982,  625,  110, 1998,
+        3782, 1181, 2560,  277, 4002, 1780, 3253,  364,
+        1398, 3998, 2810, 2063,  287,  101, 3756, 2457,
+        3541, 3320, 1339, 2897,  828,  730, 1047,  919,
+        2536, 1925,  431, 2378,  981, 2171,  923, 1640,
+        3893, 1110, 2953, 1208,  842, 3136, 2648, 1814,
+        2599, 1635, 3569,  632, 1002, 1845,  728,  321,
+        1340, 3714,  271, 1458, 3748,  100, 3064,  840,
+        3956,  980, 2021, 2382, 3920, 1675,  311, 3729,
+        2317, 1517, 2453, 1724,  897, 1213,  381,  800,
+        2985,  437,  893,  691,  929, 3726, 3145, 2764,
+        1234,  912, 3741, 2503,  176, 3852,  403, 2981,
+        2086, 1072, 1045,  368, 2131, 3746, 2709, 1492,
+        3547,  672, 1928, 3103, 2201, 1775, 1358, 1783,
+        2097,  415, 2901, 1342, 1561,  519, 3453, 1376,
+        1682, 2027, 3341, 3211,  521, 1862, 3152,  907,
+        3081, 3816,  304, 1763, 1102, 3645, 1297, 2329,
+        2237, 2043, 3841, 2561, 3925,  109, 1406, 2308,
+        2010, 1736,  856, 3155, 2468, 3894,  510,  421,
+        2734,  877, 3685, 1691, 1789, 1394, 3165, 1554,
+        3560, 2824, 2567, 1687, 1823, 2162, 3299, 3002,
+        3916, 2206, 1175, 3720, 3971,  980,  764, 1617,
+        1231,  409, 2518,  769, 1643,  987, 1923, 3706
+    };
+
+    std::cout << "[TEST] Running SampleNTT function Test...\n";
+
+    // Compute NTT transformation
+    std::vector<uint16_t> result = SampleNTT(known_input);
+
+    // Verify output against expected values
+    if (result.size() == expected_output.size()) {
+        std::cout << "[PASS] SampleNTT produced expected output size\n";
+    }
+    int failedCount = 0;
+    for (size_t i = 0; i < result.size(); i++) {
+        if (result[i] != expected_output[i]) failedCount++;
+    }
+    if (failedCount == 0) {
+        std::cout << "[PASS] SampleNTT executed successfully\n\n";
+    }
+    else {
+        std::cout << "[FAIL] SampleNTT test failed: Result did not equal known expected output\n\n";
+    }
+}
+
 int main() {
     std::cout << "===============================\n";
     std::cout << " ML-KEM Library Test Suite \n";
@@ -187,6 +252,8 @@ int main() {
     // Test the hash functions H, J and G
     testHashFunctions();
 
+    // Test the NTT functions
+    testSampleNTT();
 
     //testKeyGen();
     //testEncaps();
