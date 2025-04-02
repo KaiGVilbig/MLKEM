@@ -16,6 +16,7 @@ std::vector<uint16_t> SampleNTT(std::vector<uint8_t> B) {
     uint8_t j = 0;
 
     while (j < 256) {
+        xof.init();
         std::vector<uint8_t> C = xof.squeeze(3); // Get 3 random bytes
 
         uint16_t d1 = static_cast<uint16_t>(C[0]) + 256 * (C[1] % 16);

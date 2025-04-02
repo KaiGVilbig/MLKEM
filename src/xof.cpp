@@ -1,6 +1,7 @@
 #include "xof.h"
 #include <stdexcept>
 #include <cstring>
+#include <iostream>
 
 XOF::XOF() {
     ctx = EVP_MD_CTX_new();
@@ -21,7 +22,7 @@ void XOF::init() {
     }
 }
 
-void XOF::absorb(const std::vector<uint8_t>& input) {
+void XOF::absorb(const std::vector<uint8_t> input) {
     if (EVP_DigestUpdate(ctx, input.data(), input.size()) != 1) {
         throw std::runtime_error("Failed to absorb input into SHAKE256.");
     }

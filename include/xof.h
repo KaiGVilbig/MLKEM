@@ -11,7 +11,7 @@ public:
     ~XOF(); // Destructor
 
     void init();
-    void absorb(const std::vector<uint8_t>& input);
+    void absorb(const std::vector<uint8_t> input);
     std::vector<uint8_t> squeeze(size_t n);
 
 private:
