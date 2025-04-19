@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdint>
 
-std::vector<uint16_t> SampleNTT(const std::vector<uint8_t>);
-void samplePolyCBD();
+std::vector<uint16_t> SampleNTT(std::vector<uint8_t>);
+std::vector<uint16_t> samplePolyCBD(std::vector<uint8_t>, uint8_t);
 
 #endif // SAMPLING_H
