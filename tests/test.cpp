@@ -2,6 +2,7 @@
 #include "byteEncode.h"
 #include "hash.h"
 #include "sampling.h"
+#include "ntt.h"
 
 #include <iostream>
 #include <vector>
@@ -283,6 +284,34 @@ void testSamplePolyCBD() {
     }
 }
 
+void testNTT() {
+        // Create a test input: [0, 1, 2, ..., 255]
+        std::cout << "[TEST] Running NTT and inverseNTT function Test...\n";
+
+        std::vector<uint16_t> input(256);
+        for (size_t i = 0; i < 256; ++i) {
+            input[i] = static_cast<uint16_t>(i);
+        }
+    
+        // Run NTT and inverse NTT
+        std::vector<uint16_t> transformed = NTT(input);
+        std::vector<uint16_t> recovered = inverseNTT(transformed);
+    
+        // Verify: recovered == original input
+        bool good = true;
+        for (size_t i = 0; i < 256; ++i) {
+            if (recovered[i] != input[i]) {
+                good = false;
+            }
+        }
+    
+        if (good) {
+            std::cout << "[PASS] NTT and inverseNTT executed successfully\n\n";
+        } else {
+            std::cout << "[FAIL] NTT and inverseNTT test failed: input NTT'd and inverseNTT'd did not match\n\n";
+        }
+}
+
 int main() {
     std::cout << "===============================\n";
     std::cout << " ML-KEM Library Test Suite \n";
@@ -297,6 +326,9 @@ int main() {
     // Test the Sampling functions
     testSampleNTT();
     testSamplePolyCBD();
+
+    // Test the NTT functions
+    testNTT();
 
     //testKeyGen();
     //testEncaps();
