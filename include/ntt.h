@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdint>
 #include "zeta.h"
+#include "byteEncode.h"
 
 constexpr uint16_t q = 3329;
 constexpr uint16_t qInvN = 3303;

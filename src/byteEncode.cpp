@@ -51,3 +51,13 @@ std::vector<uint8_t> bytesToBits(std::vector<uint8_t> B) {
 
     return b;
 }
+
+uint8_t bitRev(uint8_t ini) {
+    uint8_t reversedByte = 0;
+    for (int i = 0; i < 8; ++i) {
+        if ((ini >> i) & 1) {
+            reversedByte |= (1 << (7 - i));
+        }
+    }
+    return reversedByte / 2;
+}

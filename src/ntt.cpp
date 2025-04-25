@@ -2,62 +2,52 @@
 #include <cmath>
 #include <stdexcept>
 
-#define Q 3329  // Example modulus used in Kyber/ML-KEM
-#define N 256   // Typical polynomial degree in ML-KEM
-
-uint16_t modAdd(uint16_t a, uint16_t b) {
-    uint16_t res = a + b;
-    return (res >= q) ? res - q : res;
-}
-
-uint16_t modSub(uint16_t a, uint16_t b) {
-    return (a >= b) ? a - b : a + q - b;
-}
-
+// Overflow safe multiply mod q
 uint16_t modMul(uint16_t a, uint16_t b) {
-    return static_cast<uint32_t>(a) * b % q;
+    return static_cast<uint16_t>((static_cast<uint32_t>(a) * b) % q);
 }
+
 
 // NTT using Cooley-Tukey Butterfly Operation
-std::vector<uint16_t> NTT(std::vector<uint16_t> input) {
-    std::vector<uint16_t> a = input;
-    size_t i = 1;
+std::vector<uint16_t> NTT(std::vector<uint16_t> f) {
+    std::vector<uint16_t> fhat = f;
+    uint8_t i = 1;
 
-    for (size_t len = 128; len >= 2; len >>= 1) {
-        for (size_t start = 0; start < 256; start += 2 * len) {
-            uint16_t zeta = Zeta[i - 1];
+    for (int len = 128; len >= 2; len /= 2) {
+        for (int start = 0; start < 256; start = start + 2 * len) {
+            uint16_t zeta = Zeta[i];
             i++;
-            for (size_t j = start; j < start + len; j++) {
-                uint16_t t = modMul(zeta, a[j + len]);
-                a[j + len] = modSub(a[j], t);
-                a[j] = modAdd(a[j], t);
+            for (int j = start; j < start + len; j++) {
+                uint16_t t = modMul(zeta, fhat[j + len]); // zeta * fhat[j + len] % q;
+                fhat[j + len] = (fhat[j] - t) % q;
+                fhat[j] = (fhat[j] + t) % q;
             }
         }
     }
 
-    return a;
+    return fhat;
 }
 
 // Inverse NTT to return to the coefficient domain
-std::vector<uint16_t> inverseNTT(std::vector<uint16_t> input) {
-    std::vector<uint16_t> a = input;
-    size_t i = 127;
+std::vector<uint16_t> inverseNTT(std::vector<uint16_t> fhat) {
+    std::vector<uint16_t> f = fhat;
+    uint8_t i = 127;
 
-    for (size_t len = 2; len <= 128; len <<= 1) {
-        for (size_t start = 0; start < 256; start += 2 * len) {
-            uint16_t zeta = Zeta[i - 1];
+    for (int len = 2; len <= 128; len *= 2) {
+        for (int start = 0; start < 256; start = start + 2 * len) {
+            uint16_t zeta = Zeta[i];
             i--;
-            for (size_t j = start; j < start + len; j++) {
-                uint16_t t = a[j];
-                a[j] = modAdd(t, a[j + len]);
-                a[j + len] = modMul(zeta, modSub(t, a[j + len]));
+            for (int j = start; j < start + len; j++) {
+                uint16_t t = f[j];
+                f[j] = (t + f[j + len]) % q;
+                f[j + len] = modMul(zeta, f[j + len] - t); // zeta * (f[j + len] - t) % q;
             }
         }
     }
 
-    for (size_t j = 0; j < 256; j++) {
-        a[j] = modMul(a[j], qInvN);
+    for (int j = 0; j < f.size(); j++) {
+        f[j] = modMul(f[j], 3303); // f[j] * 3303 % q;
     }
 
-    return a;
+    return f;
 }
