@@ -12,4 +12,7 @@ constexpr uint16_t qInvN = 3303;
 std::vector<uint16_t> NTT(std::vector<uint16_t>);
 std::vector<uint16_t> inverseNTT(std::vector<uint16_t> input);
 
+std::vector<uint16_t> multiplyNTT(std::vector<uint16_t>, std::vector<uint16_t>);
+std::vector<uint16_t> BaseCaseMultiply(uint16_t, uint16_t, uint16_t, uint16_t, int16_t);
+
 #endif // NTT_H

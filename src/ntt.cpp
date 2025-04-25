@@ -7,6 +7,11 @@ uint16_t modMul(uint16_t a, uint16_t b) {
     return static_cast<uint16_t>((static_cast<uint32_t>(a) * b) % q);
 }
 
+// Underflow safe subtraction mod q
+uint16_t modSub(uint16_t a, uint16_t b) {
+    return (a >= b) ? a - b : a + q - b;
+}
+
 
 // NTT using Cooley-Tukey Butterfly Operation
 std::vector<uint16_t> NTT(std::vector<uint16_t> f) {
@@ -19,7 +24,7 @@ std::vector<uint16_t> NTT(std::vector<uint16_t> f) {
             i++;
             for (int j = start; j < start + len; j++) {
                 uint16_t t = modMul(zeta, fhat[j + len]); // zeta * fhat[j + len] % q;
-                fhat[j + len] = (fhat[j] - t) % q;
+                fhat[j + len] = modSub(fhat[j], t) % q;
                 fhat[j] = (fhat[j] + t) % q;
             }
         }
@@ -40,7 +45,7 @@ std::vector<uint16_t> inverseNTT(std::vector<uint16_t> fhat) {
             for (int j = start; j < start + len; j++) {
                 uint16_t t = f[j];
                 f[j] = (t + f[j + len]) % q;
-                f[j + len] = modMul(zeta, f[j + len] - t); // zeta * (f[j + len] - t) % q;
+                f[j + len] = modMul(zeta, modSub(f[j + len], t)); // zeta * (f[j + len] - t) % q;
             }
         }
     }
@@ -50,4 +55,12 @@ std::vector<uint16_t> inverseNTT(std::vector<uint16_t> fhat) {
     }
 
     return f;
+}
+
+std::vector<uint16_t> multiplyNTT(std::vector<uint16_t fhat, std::vector<uint16_t> ghat>) {
+
+}
+
+std::vector<uint16_t> BaseCaseMultiply(uint16_t a0, uint16_t a1, uint16_t b0, uint16_t b1, int16_t z2) {
+
 }
