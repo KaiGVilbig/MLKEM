@@ -8,41 +8,50 @@
 #include <vector>
 #include <cassert>
 #include <stdexcept>
+#include <string>
 
-void testKeyGen() {
+std::vector<int> testKeyGen() {
+    int pass = 0, fail = 0;
     try {
         std::cout << "[TEST] Running KeyGen Test...\n";
         kemKeyGen();
         std::cout << "[PASS] KeyGen executed successfully.\n\n";
+        pass++;
     }
     catch (const std::exception& e) {
         std::cerr << "[FAIL] KeyGen Test Failed: " << e.what() << "\n\n";
+        fail++;
     }
+    return { pass, fail };
 }
 
-void testEncaps() {
+void testEncaps(int& pass, int& fail) {
     try {
         std::cout << "[TEST] Running Encapsulation Test...\n";
         kemEncaps();
         std::cout << "[PASS] Encapsulation executed successfully.\n\n";
+        pass++;
     }
     catch (const std::exception& e) {
         std::cerr << "[FAIL] Encapsulation Test Failed: " << e.what() << "\n\n";
+        fail++;
     }
 }
 
-void testDecaps() {
+void testDecaps(int& pass, int& fail) {
     try {
         std::cout << "[TEST] Running Decapsulation Test...\n";
         kemDecaps();
         std::cout << "[PASS] Decapsulation executed successfully.\n\n";
+        pass++;
     }
     catch (const std::exception& e) {
         std::cerr << "[FAIL] Decapsulation Test Failed: " << e.what() << "\n\n";
+        fail++;
     }
 }
 
-void testBitsBytesConversions() {
+void testBitsBytesConversions(int& pass, int& fail) {
     std::vector<uint8_t> bits = {1, 1, 0, 1, 0, 0, 0, 1}; 
     std::vector<uint8_t> bytes = { 0x8b };
 
@@ -50,22 +59,26 @@ void testBitsBytesConversions() {
     std::vector<uint8_t> result1 = bitsToBytes(bits);
     if (result1 == bytes) {
         std::cout << "[PASS] Bits to Bytes conversion executed successfully\n\n";
+        pass++;
     }
     else {
         std::cout << "[FAIL] Bits to Bytes conversion test failed: Result did not equal known expected output\n\n";
+        fail++;
     }
 
     std::cout << "[TEST] Running Bytes to Bits conversion function Test...\n";
     std::vector<uint8_t> result2 = bytesToBits(bytes);
     if (result2 == bits) {
         std::cout << "[PASS] Bytes to Bits conversion executed successfully\n\n";
+        pass++;
     }
     else {
         std::cout << "[FAIL] Bytes to Bits conversion test failed: Result did not equal known expected output\n\n";
+        fail++;
     }
 }
 
-void testByteEncodeDecode() {
+void testByteEncodeDecode(int& pass, int& fail) {
     // Test for d = 1
     std::cout << "[TEST] Running Byte encode/decode function Test for d = 1, 4, 12...\n";
     std::vector<uint8_t> input1(256, 0);
@@ -76,9 +89,11 @@ void testByteEncodeDecode() {
     auto decoded1 = byteDecode(encoded1, 1);
     if (decoded1 == input1) {
         std::cout << "[PASS] Byte encode/decode for d = 1 executed successfully\n";
+        pass++;
     }
     else {
         std::cout << "[FAIL] Byte encode/decode for d = 1 failed: Result did not equal known expected output\n";
+        fail++;
     }
 
     // Test for d = 4
@@ -90,9 +105,11 @@ void testByteEncodeDecode() {
     auto decoded4 = byteDecode(encoded4, 4);
     if (decoded1 == input1) {
         std::cout << "[PASS] Byte encode/decode for d = 4 executed successfully\n";
+        pass++;
     }
     else {
         std::cout << "[FAIL] Byte encode/decode for d = 4 failed: Result did not equal known expected output\n";
+        fail++;
     }
 
     // Test for d = 12
@@ -104,13 +121,15 @@ void testByteEncodeDecode() {
     auto decoded12 = byteDecode(encoded12, 12);
     if (decoded1 == input1) {
         std::cout << "[PASS] Byte encode/decode for d = 12 executed successfully\n\n";
+        pass++;
     }
     else {
         std::cout << "[FAIL] Byte encode/decode for d = 12 failed: Result did not equal known expected output\n\n";
+        fail++;
     }
 }
 
-void testHashFunctions() {
+void testHashFunctions(int& pass, int& fail) {
     std::vector<uint8_t> input = { 't', 'e', 's', 't' }; // "test" in ASCII
     std::vector<uint8_t> expectedH = {
         0x36, 0xf0, 0x28, 0x58, 0x0b,
@@ -153,32 +172,38 @@ void testHashFunctions() {
     std::vector<uint8_t> resultH = H(input);
     if (resultH == expectedH) {
         std::cout << "[PASS] Hash function H executed successfully\n\n";
+        pass++;
     }
     else {
         std::cout << "[FAIL] Hash function H test failed: Result did not equal known expected output\n\n";
+        fail++;
     }
 
     std::cout << "[TEST] Running Hash function J Test...\n";
     std::vector<uint8_t> resultJ = J(input);
     if (resultJ == expectedJ) {
         std::cout << "[PASS] Hash function J executed successfully\n\n";
+        pass++;
     }
     else {
         std::cout << "[FAIL] Hash function J test failed: Result did not equal known expected output\n\n";
+        fail++;
     }
 
     std::cout << "[TEST] Running Hash function G Test...\n";
     auto [resultG1, resultG2] = G(input);
     if (resultG1 == expectedG1 && resultG2 == expectedG2) {
         std::cout << "[PASS] Hash function G executed successfully\n\n";
+        pass++;
     }
     else {
         std::cout << "[FAIL] Hash function G test failed: Result did not equal known expected output\n\n";
+        fail++;
     }
 
 }
 
-void testSampleNTT() {
+void testSampleNTT(int& pass, int& fail) {
     // Known input (34 bytes)
     std::vector<uint8_t> known_input = {
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -232,9 +257,11 @@ void testSampleNTT() {
     // Verify output against expected values
     if (result.size() == expected_output.size()) {
         std::cout << "[PASS] SampleNTT produced expected output size\n";
+        pass++;
     }
     else {
         std::cout << "[FAIL] SampleNTT test failed: Result did not produce expected output size\n\n";
+        fail++;
         return;
     }
     int failedCount = 0;
@@ -243,13 +270,15 @@ void testSampleNTT() {
     }
     if (failedCount == 0) {
         std::cout << "[PASS] SampleNTT executed successfully\n\n";
+        pass++;
     }
     else {
         std::cout << "[FAIL] SampleNTT test failed: Result did not equal known expected output\n\n";
+        fail++;
     }
 }
 
-void testSamplePolyCBD() {
+void testSamplePolyCBD(int& pass, int& fail) {
     const int eta = 2;
     const int q = 4096;
     const size_t byteCount = 64 * eta;
@@ -278,38 +307,109 @@ void testSamplePolyCBD() {
     }    
     if (firstTest) {
         std::cout << "[PASS] SamplePolyCBD executed successfully\n\n";
+        pass++;
     }
     else {
         std::cout << "[FAIL] SamplePolyCBD test failed: Result did not equal known expected output\n\n";
+        fail++;
     }
 }
 
-void testNTT() {
-        // Create a test input: [0, 1, 2, ..., 255]
-        std::cout << "[TEST] Running NTT and inverseNTT function Test...\n";
+void testNTT(int& pass, int& fail) {
+    // Create a test input: [0, 1, 2, ..., 255]
+    std::cout << "[TEST] Running NTT and inverseNTT function Test...\n";
 
-        std::vector<uint16_t> input(256);
-        for (size_t i = 0; i < 256; ++i) {
-            input[i] = static_cast<uint16_t>(i);
-        }
+    std::vector<uint16_t> input(256);
+    for (size_t i = 0; i < 256; ++i) {
+        input[i] = static_cast<uint16_t>(i);
+    }
     
-        // Run NTT and inverse NTT
-        std::vector<uint16_t> transformed = NTT(input);
-        std::vector<uint16_t> recovered = inverseNTT(transformed);
+    // Run NTT and inverse NTT
+    std::vector<uint16_t> transformed = NTT(input);
+    std::vector<uint16_t> recovered = inverseNTT(transformed);
     
-        // Verify: recovered == original input
-        bool good = true;
-        for (size_t i = 0; i < 256; ++i) {
-            if (recovered[i] != input[i]) {
-                good = false;
-            }
+    // Verify: recovered == original input
+    bool good = true;
+    for (size_t i = 0; i < 256; ++i) {
+        if (recovered[i] != input[i]) {
+            good = false;
         }
+    }
     
-        if (good) {
-            std::cout << "[PASS] NTT and inverseNTT executed successfully\n\n";
-        } else {
-            std::cout << "[FAIL] NTT and inverseNTT test failed: input NTT'd and inverseNTT'd did not match\n\n";
+    if (good) {
+        std::cout << "[PASS] NTT and inverseNTT executed successfully\n\n";
+        pass++;
+    } else {
+        std::cout << "[FAIL] NTT and inverseNTT test failed: input NTT'd and inverseNTT'd did not match\n\n";
+        fail++;
+    }
+}
+
+void testMultiplyNTT(int& pass, int& fail) {
+    std::cout << "[TEST] Running NTT and inverseNTT function Test...\n";
+
+    const int N = 256;
+    const uint16_t expectedh1 = 4;
+
+    std::vector<uint16_t> a_hat(N, 1);  // all 1s
+    std::vector<uint16_t> b_hat(N, 2);  // all 2s
+
+    std::vector<uint16_t> result = multiplyNTT(a_hat, b_hat);
+    if (result.size() == N) {
+        std::cout << "[PASS] multiplyNTT returned executed size successfully\n";
+        pass++;
+    }
+    else {
+        std::cout << "[FAIL] multiplyNTT test failed: multiplyNTT returned incorrect size\n";
+        fail++;
+    }
+
+    bool passed = true;
+    for (int i = 0; i < 128; i++) {
+        uint16_t expectedh0 = modAdd(2, modMulSigned(2, Zeta2[i]));  // 2 + 2*zeta[i] mod q
+        if (result[2 * i + 1] != expectedh1 && result[2 * i] != expectedh0) {
+            passed = false;
         }
+    }
+
+    if (passed) {
+        std::cout << "[PASS] multiplyNTT returned executed output successfully\n\n";
+        pass++;
+    }
+    else {
+        std::cout << "[FAIL] multiplyNTT test failed: multiplyNTT returned incorrect output\n\n";
+        fail++;
+    }
+}
+
+bool testSupportFunctions() {
+    int pass = 0, fail = 0;
+
+    std::cout << "Test Support Functions\n";
+    std::cout << "-------------------------------\n\n";
+
+    // Test the bits to bytes and bytes to bits conversions
+    testBitsBytesConversions(pass, fail);
+    testByteEncodeDecode(pass, fail);
+    // Test the hash functions H, J and G
+    testHashFunctions(pass, fail);
+
+    // Test the Sampling functions
+    testSampleNTT(pass, fail);
+    testSamplePolyCBD(pass, fail);
+
+    // Test the NTT functions
+    testNTT(pass, fail);
+    testMultiplyNTT(pass, fail);
+
+    std::cout << "Support Functions Tests Completed\n";
+    std::cout << std::to_string(pass) << " tests passed, " << std::to_string(fail) << " tests failed\n";
+    std::cout << "-------------------------------\n\n";
+
+    if (fail > 0) {
+        return false;
+    }
+    return true;
 }
 
 int main() {
@@ -317,22 +417,7 @@ int main() {
     std::cout << " ML-KEM Library Test Suite \n";
     std::cout << "===============================\n\n";
 
-    // Test the bits to bytes and bytes to bits conversions
-    testBitsBytesConversions();
-    testByteEncodeDecode();
-    // Test the hash functions H, J and G
-    testHashFunctions();
-
-    // Test the Sampling functions
-    testSampleNTT();
-    testSamplePolyCBD();
-
-    // Test the NTT functions
-    testNTT();
-
-    //testKeyGen();
-    //testEncaps();
-    //testDecaps();
-
+    bool supportsPassed = testSupportFunctions();
+    
     return 0;
 }

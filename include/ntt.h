@@ -9,6 +9,12 @@
 constexpr uint16_t q = 3329;
 constexpr uint16_t qInvN = 3303;
 
+uint16_t modMul(uint16_t, uint16_t);
+uint16_t modMulSigned(uint16_t, int16_t);
+uint16_t modAdd(uint16_t, uint16_t);
+uint16_t modSub(uint16_t, uint16_t);
+
+
 std::vector<uint16_t> NTT(std::vector<uint16_t>);
 std::vector<uint16_t> inverseNTT(std::vector<uint16_t> input);
 
