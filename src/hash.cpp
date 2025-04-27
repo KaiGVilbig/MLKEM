@@ -1,5 +1,25 @@
 #include "hash.h"
 
+std::vector<uint8_t> prfEta(int eta, std::vector<uint8_t> s, uint8_t b) {
+
+    // Concatenate s || b
+    s.push_back(b); // Now s is 33 bytes
+
+    const size_t outputLen = 64 * eta;
+    std::vector<uint8_t> output(outputLen);
+
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+
+    if (EVP_DigestInit_ex(ctx, EVP_shake256(), nullptr) != 1 ||
+        EVP_DigestUpdate(ctx, s.data(), s.size()) != 1 ||
+        EVP_DigestFinalXOF(ctx, output.data(), outputLen) != 1) {
+        EVP_MD_CTX_free(ctx);
+    }
+
+    EVP_MD_CTX_free(ctx);
+    return output;
+}
+
 // H(s) := SHA3-256(s), outputs 32 bytes
 std::vector<uint8_t> H(std::vector<uint8_t> input) {
     std::vector<uint8_t> output(32);

@@ -3,11 +3,8 @@
 
 #include <vector>
 #include <cstdint>
-#include "zeta.h"
+#include "constants.h"
 #include "byteEncode.h"
-
-constexpr uint16_t q = 3329;
-constexpr uint16_t qInvN = 3303;
 
 uint16_t modMul(uint16_t, uint16_t);
 uint16_t modMulSigned(uint16_t, int16_t);

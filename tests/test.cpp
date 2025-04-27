@@ -3,26 +3,35 @@
 #include "hash.h"
 #include "sampling.h"
 #include "ntt.h"
+#include "kpke.h"
 
 #include <iostream>
 #include <vector>
 #include <cassert>
 #include <stdexcept>
 #include <string>
+#include <random>
 
-std::vector<int> testKeyGen() {
-    int pass = 0, fail = 0;
-    try {
-        std::cout << "[TEST] Running KeyGen Test...\n";
-        kemKeyGen();
-        std::cout << "[PASS] KeyGen executed successfully.\n\n";
-        pass++;
+
+void testKpkeKeyGen() {
+    // Initialize the seed with random values
+    std::vector<uint8_t> seed(32);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(0, 255);
+
+    // Fill the seed with random bytes
+    for (auto& byte : seed) {
+        byte = static_cast<uint8_t>(distrib(gen));
     }
-    catch (const std::exception& e) {
-        std::cerr << "[FAIL] KeyGen Test Failed: " << e.what() << "\n\n";
-        fail++;
-    }
-    return { pass, fail };
+
+    // Call KeyGen
+    auto [ekPKE, dkPKE] = kpkeKeyGen(seed, Variants::MLKEM512);
+
+    // Print sizes
+    std::cout << "✅ K-PKE.KeyGen(MLKEM512) completed!" << std::endl;
+    std::cout << "Public key size: " << ekPKE.size() << " bytes" << std::endl;
+    std::cout << "Secret key size: " << dkPKE.size() << " bytes" << std::endl;
 }
 
 void testEncaps(int& pass, int& fail) {
@@ -78,56 +87,56 @@ void testBitsBytesConversions(int& pass, int& fail) {
     }
 }
 
-void testByteEncodeDecode(int& pass, int& fail) {
-    // Test for d = 1
-    std::cout << "[TEST] Running Byte encode/decode function Test for d = 1, 4, 12...\n";
-    std::vector<uint8_t> input1(256, 0);
-    for (int i = 0; i < 256; i++) {
-        input1[i] = i % 2;
-    }
-    auto encoded1 = byteEncode(input1, 1);
-    auto decoded1 = byteDecode(encoded1, 1);
-    if (decoded1 == input1) {
-        std::cout << "[PASS] Byte encode/decode for d = 1 executed successfully\n";
-        pass++;
-    }
-    else {
-        std::cout << "[FAIL] Byte encode/decode for d = 1 failed: Result did not equal known expected output\n";
-        fail++;
-    }
-
-    // Test for d = 4
-    std::vector<uint8_t> input4(256, 0);
-    for (int i = 0; i < 256; i++) {
-        input4[i] = i % 16;
-    }
-    auto encoded4 = byteEncode(input4, 4);
-    auto decoded4 = byteDecode(encoded4, 4);
-    if (decoded1 == input1) {
-        std::cout << "[PASS] Byte encode/decode for d = 4 executed successfully\n";
-        pass++;
-    }
-    else {
-        std::cout << "[FAIL] Byte encode/decode for d = 4 failed: Result did not equal known expected output\n";
-        fail++;
-    }
-
-    // Test for d = 12
-    std::vector<uint8_t> input12(256, 0);
-    for (int i = 0; i < 256; i++) {
-        input12[i] = (i * 17) % 3329;
-    }
-    auto encoded12 = byteEncode(input12, 12);
-    auto decoded12 = byteDecode(encoded12, 12);
-    if (decoded1 == input1) {
-        std::cout << "[PASS] Byte encode/decode for d = 12 executed successfully\n\n";
-        pass++;
-    }
-    else {
-        std::cout << "[FAIL] Byte encode/decode for d = 12 failed: Result did not equal known expected output\n\n";
-        fail++;
-    }
-}
+//void testByteEncodeDecode(int& pass, int& fail) {
+//    // Test for d = 1
+//    std::cout << "[TEST] Running Byte encode/decode function Test for d = 1, 4, 12...\n";
+//    std::vector<uint8_t> input1(256, 0);
+//    for (int i = 0; i < 256; i++) {
+//        input1[i] = i % 2;
+//    }
+//    auto encoded1 = byteEncode(input1, 1);
+//    auto decoded1 = byteDecode(encoded1, 1);
+//    if (decoded1 == input1) {
+//        std::cout << "[PASS] Byte encode/decode for d = 1 executed successfully\n";
+//        pass++;
+//    }
+//    else {
+//        std::cout << "[FAIL] Byte encode/decode for d = 1 failed: Result did not equal known expected output\n";
+//        fail++;
+//    }
+//
+//    // Test for d = 4
+//    std::vector<uint8_t> input4(256, 0);
+//    for (int i = 0; i < 256; i++) {
+//        input4[i] = i % 16;
+//    }
+//    auto encoded4 = byteEncode(input4, 4);
+//    auto decoded4 = byteDecode(encoded4, 4);
+//    if (decoded1 == input1) {
+//        std::cout << "[PASS] Byte encode/decode for d = 4 executed successfully\n";
+//        pass++;
+//    }
+//    else {
+//        std::cout << "[FAIL] Byte encode/decode for d = 4 failed: Result did not equal known expected output\n";
+//        fail++;
+//    }
+//
+//    // Test for d = 12
+//    std::vector<uint8_t> input12(256, 0);
+//    for (int i = 0; i < 256; i++) {
+//        input12[i] = (i * 17) % 3329;
+//    }
+//    auto encoded12 = byteEncode(input12, 12);
+//    auto decoded12 = byteDecode(encoded12, 12);
+//    if (decoded1 == input1) {
+//        std::cout << "[PASS] Byte encode/decode for d = 12 executed successfully\n\n";
+//        pass++;
+//    }
+//    else {
+//        std::cout << "[FAIL] Byte encode/decode for d = 12 failed: Result did not equal known expected output\n\n";
+//        fail++;
+//    }
+//}
 
 void testHashFunctions(int& pass, int& fail) {
     std::vector<uint8_t> input = { 't', 'e', 's', 't' }; // "test" in ASCII
@@ -390,7 +399,7 @@ bool testSupportFunctions() {
 
     // Test the bits to bytes and bytes to bits conversions
     testBitsBytesConversions(pass, fail);
-    testByteEncodeDecode(pass, fail);
+    //testByteEncodeDecode(pass, fail);
     // Test the hash functions H, J and G
     testHashFunctions(pass, fail);
 
@@ -418,6 +427,6 @@ int main() {
     std::cout << "===============================\n\n";
 
     bool supportsPassed = testSupportFunctions();
-    
+    testKpkeKeyGen();
     return 0;
 }

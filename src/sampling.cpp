@@ -1,10 +1,9 @@
 ﻿#include "sampling.h"
 #include "xof.h"
 #include "byteEncode.h"
+#include "constants.h"
 #include <stdexcept>
 #include <iostream>
-
-constexpr uint16_t q = 4096;
 
 std::vector<uint16_t> SampleNTT(std::vector<uint8_t> B) {
     if (B.size() != 34) {

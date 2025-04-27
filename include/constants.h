@@ -2,6 +2,9 @@
 #define ZETA_H
 #include <cstdint>
 
+constexpr uint16_t q = 3329;
+constexpr uint16_t qInvN = 3303;
+
 constexpr uint16_t Zeta[128] = {
     1, 1729, 2580, 3289, 2642, 630, 1897, 848,
     1062, 1919, 193, 797, 2786, 3260, 569, 1746,

@@ -16,7 +16,7 @@
 void kemKeyGenInternal() {
     std::cout << "[INFO] ML-KEM.KeyGen_internal() called\n";
     // ekpke, dkpke <- K_PKE.KeyGen(d)
-    kpkeKeyGen(); // Run kye generation for K-PKE
+    //kpkeKeyGen(); // Run kye generation for K-PKE
 
     // ek <- ekpke
     // dk <- (dkpke||ek||H(ek)||z)
