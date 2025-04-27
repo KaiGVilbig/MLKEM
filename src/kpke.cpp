@@ -12,6 +12,7 @@ std::tuple<int, int, int, int> getVariant(Variants variant) {
 			break;
 		case Variants::MLKEM1024:
 			k = 4, n1 = 2, du = 11, dv = 5;
+            break;
 		default:
 			k = 2, n1 = 3, du = 10, dv = 4;
 			break;
@@ -45,30 +46,18 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kpkeKeyGen(std::vector<uin
 
     std::vector<std::vector<uint16_t>> s(k);
     for (int i = 0; i < k; ++i) {
-        //std::vector<uint8_t> prfInput = sigma;
-        //prfInput.push_back(static_cast<uint8_t>((N >> 8) & 0xFF));
-        //prfInput.push_back(static_cast<uint8_t>(N & 0xFF));
-        //s[i] = samplePolyCBD(prfInput, n);
         s[i] = samplePolyCBD(prfEta(n, sigma, N), n);
         N++;
     }
 
     std::vector<std::vector<uint16_t>> e(k);
     for (int i = 0; i < k; ++i) {
-        //std::vector<uint8_t> prfInput = sigma;
-        //prfInput.push_back(static_cast<uint8_t>((N >> 8) & 0xFF));
-        //prfInput.push_back(static_cast<uint8_t>(N & 0xFF));
-        //e[i] = samplePolyCBD(prfInput, n);
         e[i] = samplePolyCBD(prfEta(n, sigma, N), n);
-
         N++;
     }
 
     for (int i = 0; i < k; ++i) {
         s[i] = NTT(s[i]);
-    }
-
-    for (int i = 0; i < k; ++i) {
         e[i] = NTT(e[i]);
     }
 
@@ -86,14 +75,14 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kpkeKeyGen(std::vector<uin
 
     std::vector<uint8_t> ekPKE;
     for (int i = 0; i < k; ++i) {
-        std::vector<uint8_t> encoded = byteEncode(t_hat[i], du);
+        std::vector<uint8_t> encoded = byteEncode(t_hat[i], 12);
         ekPKE.insert(ekPKE.end(), encoded.begin(), encoded.end());
     }
     ekPKE.insert(ekPKE.end(), rho.begin(), rho.end());
 
     std::vector<uint8_t> dkPKE;
     for (int i = 0; i < k; ++i) {
-        std::vector<uint8_t> encoded = byteEncode(s[i], dv);
+        std::vector<uint8_t> encoded = byteEncode(s[i], 12);
         dkPKE.insert(dkPKE.end(), encoded.begin(), encoded.end());
     }
 
