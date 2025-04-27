@@ -89,9 +89,48 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kpkeKeyGen(std::vector<uin
     return { ekPKE, dkPKE };
 }
 
-void kpkeEncrypt() {
-	std::cout << "[INFO] kpkeEncode() called\n";
+void kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> r, Variants variant) {
+    int k, n, du, dv;
+    int n2 = 2;
+
+    std::tie(k, n, du, dv) = getVariant(variant);
+
+    int N = 0;
+    std::vector<uint8_t> subvec(ek.begin(), ek.begin() + 384 * k);
+    std::vector<uint8_t> t_hat = byteDecode(subvec, 12);
+
+    std::vector<uint8_t> rho(ek.begin() + 384 * k, ek.end());
+
+    std::vector<std::vector<uint16_t>> A_hat(k * k);
+    for (int i = 0; i < k; ++i) {
+        for (int j = 0; j < k; ++j) {
+            std::vector<uint8_t> seed = rho;
+            seed.push_back(static_cast<uint8_t>(j));
+            seed.push_back(static_cast<uint8_t>(i));
+            A_hat[i * k + j] = SampleNTT(seed);
+        }
+    }
+
+    std::vector<std::vector<uint16_t>> y(k);
+    std::vector<std::vector<uint16_t>> y_hat(k);
+    for (int i = 0; i < k; ++i) {
+        y[i] = samplePolyCBD(prfEta(n, r, N), n);
+        y_hat[i] = NTT(y[i]);
+        N++;
+    }
+
+    std::vector<std::vector<uint16_t>> e1(k);
+    for (int i = 0; i < k; ++i) {
+        y[i] = samplePolyCBD(prfEta(n2, r, N), n2);
+        N++;
+    }
+    std::vector<uint16_t> e2 = samplePolyCBD(prfEta(n2, r, N), n2);
+
+    
+
+
 }
+
 
 void kpkeDecrypt() {
 	std::cout << "[INFO] kpkeDecode() called\n";
