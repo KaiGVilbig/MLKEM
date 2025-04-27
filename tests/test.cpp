@@ -29,7 +29,7 @@ void testKpkeKeyGen() {
     auto [ekPKE, dkPKE] = kpkeKeyGen(seed, Variants::MLKEM512);
 
     // Print sizes
-    std::cout << "✅ K-PKE.KeyGen(MLKEM512) completed!" << std::endl;
+    std::cout << "[PASS] K-PKE.KeyGen(MLKEM512) completed!" << std::endl;
     std::cout << "Public key size: " << ekPKE.size() << " bytes" << std::endl;
     std::cout << "Secret key size: " << dkPKE.size() << " bytes" << std::endl;
 }

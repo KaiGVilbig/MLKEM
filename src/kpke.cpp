@@ -45,19 +45,22 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kpkeKeyGen(std::vector<uin
 
     std::vector<std::vector<uint16_t>> s(k);
     for (int i = 0; i < k; ++i) {
-        std::vector<uint8_t> prfInput = sigma;
-        prfInput.push_back(static_cast<uint8_t>((N >> 8) & 0xFF));
-        prfInput.push_back(static_cast<uint8_t>(N & 0xFF));
-        s[i] = samplePolyCBD(prfInput, n);
+        //std::vector<uint8_t> prfInput = sigma;
+        //prfInput.push_back(static_cast<uint8_t>((N >> 8) & 0xFF));
+        //prfInput.push_back(static_cast<uint8_t>(N & 0xFF));
+        //s[i] = samplePolyCBD(prfInput, n);
+        s[i] = samplePolyCBD(prfEta(n, sigma, N), n);
         N++;
     }
 
     std::vector<std::vector<uint16_t>> e(k);
     for (int i = 0; i < k; ++i) {
-        std::vector<uint8_t> prfInput = sigma;
-        prfInput.push_back(static_cast<uint8_t>((N >> 8) & 0xFF));
-        prfInput.push_back(static_cast<uint8_t>(N & 0xFF));
-        e[i] = samplePolyCBD(prfInput, n);
+        //std::vector<uint8_t> prfInput = sigma;
+        //prfInput.push_back(static_cast<uint8_t>((N >> 8) & 0xFF));
+        //prfInput.push_back(static_cast<uint8_t>(N & 0xFF));
+        //e[i] = samplePolyCBD(prfInput, n);
+        e[i] = samplePolyCBD(prfEta(n, sigma, N), n);
+
         N++;
     }
 
