@@ -89,46 +89,102 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kpkeKeyGen(std::vector<uin
     return { ekPKE, dkPKE };
 }
 
-void kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> r, Variants variant) {
+std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m, std::vector<uint8_t> r, Variants variant) {
     int k, n, du, dv;
     int n2 = 2;
 
     std::tie(k, n, du, dv) = getVariant(variant);
 
     int N = 0;
-    std::vector<uint8_t> subvec(ek.begin(), ek.begin() + 384 * k);
-    std::vector<uint8_t> t_hat = byteDecode(subvec, 12);
 
-    std::vector<uint8_t> rho(ek.begin() + 384 * k, ek.end());
+    // Step 1–2: Decode t? and extract ?
+    size_t tHatBytes = (du * 256 + 7) / 8;
+    std::vector<std::vector<uint16_t>> tHat(k);
+    for (int i = 0; i < k; ++i) {
+        std::vector<uint8_t> enc(ekPKE.begin() + i * tHatBytes, ekPKE.begin() + (i + 1) * tHatBytes);
+        tHat[i] = ByteDecode(enc, du);
+    }
+    std::vector<uint8_t> rho(ekPKE.end() - 32, ekPKE.end());
 
-    std::vector<std::vector<uint16_t>> A_hat(k * k);
+    // Step 3–7: Regenerate A_hat
+    std::vector<std::vector<uint16_t>> Ahat(k * k);
     for (int i = 0; i < k; ++i) {
         for (int j = 0; j < k; ++j) {
             std::vector<uint8_t> seed = rho;
             seed.push_back(static_cast<uint8_t>(j));
             seed.push_back(static_cast<uint8_t>(i));
-            A_hat[i * k + j] = SampleNTT(seed);
+            Ahat[i * k + j] = SampleNTT(seed);
         }
     }
 
-    std::vector<std::vector<uint16_t>> y(k);
-    std::vector<std::vector<uint16_t>> y_hat(k);
+    // Step 8–14: Generate y, e1, e2 using PRF
+    std::vector<std::vector<uint16_t>> y(k), e1(k);
+    std::vector<uint16_t> e2;
     for (int i = 0; i < k; ++i) {
-        y[i] = samplePolyCBD(prfEta(n, r, N), n);
-        y_hat[i] = NTT(y[i]);
-        N++;
+        std::vector<uint8_t> prf = r;
+        prf.push_back((N >> 8) & 0xFF); prf.push_back(N & 0xFF);
+        y[i] = SamplePolyCBD(prf, eta1, q); N++;
+    }
+    for (int i = 0; i < k; ++i) {
+        std::vector<uint8_t> prf = r;
+        prf.push_back((N >> 8) & 0xFF); prf.push_back(N & 0xFF);
+        e1[i] = SamplePolyCBD(prf, eta2, q); N++;
+    }
+    {
+        std::vector<uint8_t> prf = r;
+        prf.push_back((N >> 8) & 0xFF); prf.push_back(N & 0xFF);
+        e2 = SamplePolyCBD(prf, eta2, q); N++;
     }
 
-    std::vector<std::vector<uint16_t>> e1(k);
+    // Step 15–17: NTT(y), compute u? = A?·? + ê?
+    for (int i = 0; i < k; ++i) y[i] = ntt(y[i]);
+
+    std::vector<std::vector<uint16_t>> uHat(k, std::vector<uint16_t>(256, 0));
     for (int i = 0; i < k; ++i) {
-        y[i] = samplePolyCBD(prfEta(n2, r, N), n2);
-        N++;
+        for (int j = 0; j < k; ++j) {
+            for (int l = 0; l < 256; ++l) {
+                uHat[i][l] = (uHat[i][l] + Ahat[i * k + j][l] * y[j][l]) % q;
+            }
+        }
+        for (int l = 0; l < 256; ++l) {
+            uHat[i][l] = (uHat[i][l] + e1[i][l]) % q;
+        }
     }
-    std::vector<uint16_t> e2 = samplePolyCBD(prfEta(n2, r, N), n2);
 
-    
+    // Step 18: compute v? = t??·?
+    std::vector<uint16_t> vHat(256, 0);
+    for (int i = 0; i < k; ++i) {
+        for (int l = 0; l < 256; ++l) {
+            vHat[l] = (vHat[l] + tHat[i][l] * y[i][l]) % q;
+        }
+    }
 
+    // Step 19: Decompress message m
+    std::vector<uint8_t> messageBits = byteToBits(m);
+    std::vector<uint16_t> mu(256, 0);
+    for (int i = 0; i < 256 && i < messageBits.size(); ++i) {
+        mu[i] = messageBits[i] * (q / 2);
+    }
 
+    // Step 20: compute v = NTT?¹(v?) + ? + e?
+    std::vector<uint16_t> v = inverseNTT(vHat);
+    for (int i = 0; i < 256; ++i) {
+        v[i] = (v[i] + mu[i] + e2[i]) % q;
+    }
+
+    // Step 21–23: Encode c? and c?
+    std::vector<uint8_t> ciphertext;
+    for (int i = 0; i < k; ++i) {
+        auto compressed = Compress(uHat[i], du);
+        auto encoded = byteEncode(compressed, 12);
+        ciphertext.insert(ciphertext.end(), encoded.begin(), encoded.end());
+    }
+
+    auto compressedV = Compress(v, dv);
+    auto encodedV = byteEncode(compressedV, 12);
+    ciphertext.insert(ciphertext.end(), encodedV.begin(), encodedV.end());
+
+    return ciphertext;
 }
 
 
