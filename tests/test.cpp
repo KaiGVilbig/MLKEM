@@ -13,7 +13,7 @@
 #include <random>
 
 
-void testKpkeKeyGen() {
+std::pair<std::vector<uint8_t>, std::vector<uint8_t>> testKpkeKeyGen() {
     // Initialize the seed with random values
     std::vector<uint8_t> seed(32);
     std::random_device rd;
@@ -32,6 +32,17 @@ void testKpkeKeyGen() {
     std::cout << "[PASS] K-PKE.KeyGen(MLKEM512) completed!" << std::endl;
     std::cout << "Public key size: " << ekPKE.size() << " bytes" << std::endl;
     std::cout << "Secret key size: " << dkPKE.size() << " bytes" << std::endl;
+    return { ekPKE, dkPKE };
+}
+
+void testKpkeEncrypt(std::vector <uint8_t> ek) {
+    std::vector<uint8_t> message(32, 0x42);  // test message (arbitrary 32 bytes)
+    std::vector<uint8_t> randomness(32, 0x55);  // static randomness input
+
+    std::vector<uint8_t> ciphertext = kpkeEncrypt(ek, message, randomness, Variants::MLKEM512);
+
+    std::cout << "[PASS] K-PKE.Encrypt() completed!\n";
+    std::cout << "Ciphertext size: " << ciphertext.size() << " bytes\n";
 }
 
 void testEncaps(int& pass, int& fail) {
@@ -427,6 +438,7 @@ int main() {
     std::cout << "===============================\n\n";
 
     bool supportsPassed = testSupportFunctions();
-    testKpkeKeyGen();
+    auto [ek, dk] = testKpkeKeyGen();
+    testKpkeEncrypt(ek);
     return 0;
 }

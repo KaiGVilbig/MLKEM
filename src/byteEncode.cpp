@@ -20,16 +20,20 @@ std::vector<uint8_t> byteEncode(const std::vector<uint16_t> F, uint8_t d) {
     return bitsToBytes(bits);
 }
 
-std::vector<uint8_t> byteDecode(const std::vector<uint8_t> B, uint8_t d) {
-    std::vector<uint8_t> F(256, 0);
+std::vector<uint16_t> byteDecode(const std::vector<uint8_t> B, uint8_t d) {
     std::vector<uint8_t> b = bytesToBits(B);
-    uint16_t m = (d < 12) ? (1 << d) : 3329;
-    for (int i = 0; i < 256; i++) {
-        for (int j = 0; j < d; j++) {
-            F[i] |= (b[i * d + j] << j);
+    std::vector<uint16_t> F(256, 0);
+
+    uint16_t m = (d < 12) ? (1 << d) : q;
+
+    for (int i = 0; i < 256; ++i) {
+        uint16_t value = 0;
+        for (int j = 0; j < d; ++j) {
+            value += static_cast<uint16_t>(b[i * d + j]) << j;
         }
-        F[i] %= m;
+        F[i] = value % m;
     }
+
     return F;
 }
 
@@ -67,4 +71,29 @@ uint8_t bitRev(uint8_t ini) {
         }
     }
     return reversedByte / 2;
+}
+
+
+std::vector<uint16_t> Compress(std::vector<uint16_t> input, int d) {
+    std::vector<uint16_t> output(input.size());
+    uint16_t scale = static_cast<uint16_t>(1 << d);
+
+    for (size_t i = 0; i < input.size(); ++i) {
+        uint32_t scaled = static_cast<uint32_t>(input[i]) * scale + (q / 2);
+        output[i] = static_cast<uint16_t>((scaled / q) % scale);
+    }
+
+    return output;
+}
+
+std::vector<uint16_t> Decompress(std::vector<uint16_t> input, int d) {
+    std::vector<uint16_t> output(input.size());
+    uint16_t scale = static_cast<uint16_t>(1 << d);
+
+    for (size_t i = 0; i < input.size(); ++i) {
+        uint32_t scaled = static_cast<uint32_t>(input[i]) * q + (scale / 2);
+        output[i] = static_cast<uint16_t>(scaled / scale);
+    }
+
+    return output;
 }

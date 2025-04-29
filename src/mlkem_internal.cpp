@@ -38,7 +38,7 @@ void kemEncapsInternal() {
     // G(); // Derive shared secret key K and randomness r
 
     // c <- K-PKE.Encrypt(ek, m, r)
-    kpkeEncrypt(); // encrypt m using K-PKE with randomness r
+    // kpkeEncrypt(); // encrypt m using K-PKE with randomness r
     std::cout << "[INFO] ML-KEM.Encaps_internal() completed\n";
 
     // return (K, c)
@@ -67,7 +67,7 @@ void kemDecapsInternal() {
     // J();
 
     // c' <- K-PKE.Encrypt(epkpe, m', r')
-    kpkeEncrypt(); // re-encrypt using the derived randomness r'
+    // kpkeEncrypt(); // re-encrypt using the derived randomness r'
     
     // if c != c' then K' <- K
     std::cout << "[INFO] ML-KEM.Decaps_internal() completed\n";

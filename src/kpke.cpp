@@ -98,13 +98,13 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
     int N = 0;
 
     // Step 1–2: Decode t? and extract ?
-    size_t tHatBytes = (du * 256 + 7) / 8;
+    size_t tHatBytes = (12 * 256 + 7) / 8;
     std::vector<std::vector<uint16_t>> tHat(k);
     for (int i = 0; i < k; ++i) {
-        std::vector<uint8_t> enc(ekPKE.begin() + i * tHatBytes, ekPKE.begin() + (i + 1) * tHatBytes);
-        tHat[i] = ByteDecode(enc, du);
+        std::vector<uint8_t> enc(ek.begin() + i * tHatBytes, ek.begin() + (i + 1) * tHatBytes);
+        tHat[i] = byteDecode(enc, 12);
     }
-    std::vector<uint8_t> rho(ekPKE.end() - 32, ekPKE.end());
+    std::vector<uint8_t> rho(ek.end() - 32, ek.end());
 
     // Step 3–7: Regenerate A_hat
     std::vector<std::vector<uint16_t>> Ahat(k * k);
@@ -121,23 +121,19 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
     std::vector<std::vector<uint16_t>> y(k), e1(k);
     std::vector<uint16_t> e2;
     for (int i = 0; i < k; ++i) {
-        std::vector<uint8_t> prf = r;
-        prf.push_back((N >> 8) & 0xFF); prf.push_back(N & 0xFF);
-        y[i] = SamplePolyCBD(prf, eta1, q); N++;
+        y[i] = samplePolyCBD(prfEta(n, r, N), n); N++;
     }
     for (int i = 0; i < k; ++i) {
-        std::vector<uint8_t> prf = r;
-        prf.push_back((N >> 8) & 0xFF); prf.push_back(N & 0xFF);
-        e1[i] = SamplePolyCBD(prf, eta2, q); N++;
+        e1[i] = samplePolyCBD(prfEta(n2, r, N), n2); N++;
     }
     {
         std::vector<uint8_t> prf = r;
         prf.push_back((N >> 8) & 0xFF); prf.push_back(N & 0xFF);
-        e2 = SamplePolyCBD(prf, eta2, q); N++;
+        e2 = samplePolyCBD(prfEta(n2, r, N), n2); N++;
     }
 
     // Step 15–17: NTT(y), compute u? = A?·? + ê?
-    for (int i = 0; i < k; ++i) y[i] = ntt(y[i]);
+    for (int i = 0; i < k; ++i) y[i] = NTT(y[i]);
 
     std::vector<std::vector<uint16_t>> uHat(k, std::vector<uint16_t>(256, 0));
     for (int i = 0; i < k; ++i) {
@@ -160,7 +156,7 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
     }
 
     // Step 19: Decompress message m
-    std::vector<uint8_t> messageBits = byteToBits(m);
+    std::vector<uint8_t> messageBits = bytesToBits(m);
     std::vector<uint16_t> mu(256, 0);
     for (int i = 0; i < 256 && i < messageBits.size(); ++i) {
         mu[i] = messageBits[i] * (q / 2);
@@ -176,17 +172,16 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
     std::vector<uint8_t> ciphertext;
     for (int i = 0; i < k; ++i) {
         auto compressed = Compress(uHat[i], du);
-        auto encoded = byteEncode(compressed, 12);
+        auto encoded = byteEncode(compressed, du);
         ciphertext.insert(ciphertext.end(), encoded.begin(), encoded.end());
     }
 
     auto compressedV = Compress(v, dv);
-    auto encodedV = byteEncode(compressedV, 12);
+    auto encodedV = byteEncode(compressedV, dv);
     ciphertext.insert(ciphertext.end(), encodedV.begin(), encodedV.end());
 
     return ciphertext;
 }
-
 
 void kpkeDecrypt() {
 	std::cout << "[INFO] kpkeDecode() called\n";
