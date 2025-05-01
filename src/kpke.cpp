@@ -138,9 +138,9 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
     std::vector<std::vector<uint16_t>> uHat(k, std::vector<uint16_t>(256, 0));
     for (int i = 0; i < k; ++i) {
         for (int j = 0; j < k; ++j) {
-            for (int l = 0; l < 256; ++l) {
-                uHat[i][l] = (uHat[i][l] + Ahat[i * k + j][l] * y[j][l]) % q;
-            }
+            auto product = multiplyNTT(Ahat[i * k + j], y[j]);
+            for (int l = 0; l < 256; ++l)
+                uHat[i][l] = (uHat[i][l] + product[l]) % q;
         }
         for (int l = 0; l < 256; ++l) {
             uHat[i][l] = (uHat[i][l] + e1[i][l]) % q;
@@ -150,17 +150,22 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
     // Step 18: compute v? = t??·?
     std::vector<uint16_t> vHat(256, 0);
     for (int i = 0; i < k; ++i) {
+        auto product = multiplyNTT(tHat[i], y[i]);
         for (int l = 0; l < 256; ++l) {
-            vHat[l] = (vHat[l] + tHat[i][l] * y[i][l]) % q;
+            vHat[l] = (vHat[l] + product[l]) % q;
         }
     }
 
     // Step 19: Decompress message m
-    std::vector<uint8_t> messageBits = bytesToBits(m);
     std::vector<uint16_t> mu(256, 0);
-    for (int i = 0; i < 256 && i < messageBits.size(); ++i) {
-        mu[i] = messageBits[i] * (q / 2);
+    auto messageBits = byteDecode(m, 1);  // returns 256 0/1 values
+    for (int i = 0; i < 256; ++i) {
+        mu[i] = messageBits[i] ? (q / 2) : 0;
     }
+    std::cout << "mu (first 8): ";
+    for (int i = 0; i < 8; ++i) std::cout << mu[i] << " ";
+    std::cout << "\n";
+
 
     // Step 20: compute v = NTT?¹(v?) + ? + e?
     std::vector<uint16_t> v = inverseNTT(vHat);
@@ -221,8 +226,9 @@ std::vector<uint8_t> kpkeDecrypt(std::vector<uint8_t> dk, std::vector<uint8_t> c
     std::vector<uint16_t> w(256, 0);
     for (int i = 0; i < k; ++i) {
         auto u_ntt = NTT(u[i]);
+        auto product = multiplyNTT(s[i], u_ntt);
         for (int j = 0; j < 256; ++j) {
-            w[j] = (w[j] + static_cast<uint32_t>(s[i][j]) * u_ntt[j]) % q;
+            w[j] = (w[j] + product[j]) % q;
         }
     }
 
@@ -235,5 +241,9 @@ std::vector<uint8_t> kpkeDecrypt(std::vector<uint8_t> dk, std::vector<uint8_t> c
 
     // Step 8: ByteEncode from polynomial w using compress(., 1)
     auto compressed = Compress(w, 1);
+    std::cout << "First 8 compressed bits: ";
+    for (int i = 0; i < 8; ++i) std::cout << +compressed[i] << " ";
+    std::cout << "\n";
+
     return byteEncode(compressed, 1);
 }

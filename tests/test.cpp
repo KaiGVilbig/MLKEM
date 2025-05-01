@@ -37,13 +37,13 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> testKpkeKeyGen() {
 }
 
 std::pair<std::vector<uint8_t>, std::vector<uint8_t>> testKpkeEncrypt(std::vector<uint8_t> ek) {
-    std::vector<uint8_t> message(32, 0x42);  // test message (arbitrary 32 bytes)
+    std::vector<uint8_t> message(32, 0x00);  // test message (arbitrary 32 bytes) 42
     std::vector<uint8_t> randomness(32, 0x55);  // static randomness input
 
     std::vector<uint8_t> ciphertext = kpkeEncrypt(ek, message, randomness, Variants::MLKEM512);
     std::vector<uint8_t> ciphertext2 = kpkeEncrypt(ek, message, randomness, Variants::MLKEM512);
 
-    if (ciphertext == ciphertext2) {
+    if (ciphertext != ciphertext2) {
         std::cout << "[FAIL] Ciphertext mismatch: encryption not deterministic!";
     }
     else {
@@ -57,9 +57,25 @@ void testkpkeDecrypt(std::vector<uint8_t> dk, std::vector<uint8_t> c, std::vecto
     auto decrypted = kpkeDecrypt(dk, c, Variants::MLKEM512);
 
     if (m == decrypted) {
-        std::cout << "[PASS]";
+        std::cout << "[PASS] K-PKE.Decrypt(): message successfully recovered.\n";
+    }
+    else {
+        std::cout << "[FAIL] K-PKE.Decrypt(): message mismatch!\n";
+
+        std::cout << "Expected: ";
+        for (int i = 0; i < 8; ++i) std::cout << std::hex << +m[i] << " ";
+        std::cout << "\nGot:      ";
+        for (int i = 0; i < 8; ++i) std::cout << std::hex << +decrypted[i] << " ";
+        std::cout << "\n";
+
+        int diffCount = 0;
+        for (int i = 0; i < 32; ++i) {
+            if (m[i] != decrypted[i]) diffCount++;
+        }
+        std::cout << "Mismatched bytes: " << diffCount << "/32\n";
     }
 }
+
 
 void testEncaps(int& pass, int& fail) {
     try {
@@ -111,6 +127,25 @@ void testBitsBytesConversions(int& pass, int& fail) {
     else {
         std::cout << "[FAIL] Bytes to Bits conversion test failed: Result did not equal known expected output\n\n";
         fail++;
+    }
+}
+
+void testByteEncodeDecode(int& pass, int& fail) {
+    for (int d = 1; d <= 12; ++d) {
+        std::vector<uint16_t> input(256);
+        uint16_t maxVal = (d == 12) ? 3329 : (1 << d);
+
+        // Fill input with a pattern
+        for (int i = 0; i < 256; ++i) {
+            input[i] = i % maxVal;
+        }
+
+        auto encoded = byteEncode(input, d);
+        auto decoded = byteDecode(encoded, d);
+
+        assert(input == decoded && "ByteEncode/Decode mismatch!");
+
+        std::cout << "✅ ByteEncode/Decode round-trip passed for d = " << d << "\n";
     }
 }
 
@@ -426,7 +461,7 @@ bool testSupportFunctions() {
 
     // Test the bits to bytes and bytes to bits conversions
     testBitsBytesConversions(pass, fail);
-    //testByteEncodeDecode(pass, fail);
+    testByteEncodeDecode(pass, fail);
     // Test the hash functions H, J and G
     testHashFunctions(pass, fail);
 

@@ -76,15 +76,14 @@ uint8_t bitRev(uint8_t ini) {
 
 std::vector<uint16_t> Compress(std::vector<uint16_t> input, int d) {
     std::vector<uint16_t> output(input.size());
-    uint16_t scale = static_cast<uint16_t>(1 << d);
-
+    uint16_t scale = 1 << d; // 2^d
     for (size_t i = 0; i < input.size(); ++i) {
-        uint32_t scaled = static_cast<uint32_t>(input[i]) * scale + (q / 2);
-        output[i] = static_cast<uint16_t>((scaled / q) % scale);
+        uint32_t temp = static_cast<uint32_t>(input[i]) * scale + q / 2;
+        output[i] = static_cast<uint16_t>((temp / q) % scale);  // scale = 1 << d
     }
-
     return output;
 }
+
 
 std::vector<uint16_t> Decompress(std::vector<uint16_t> input, int d) {
     std::vector<uint16_t> output(input.size());
