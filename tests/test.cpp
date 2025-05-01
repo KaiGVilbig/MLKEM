@@ -32,17 +32,33 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> testKpkeKeyGen() {
     std::cout << "[PASS] K-PKE.KeyGen(MLKEM512) completed!" << std::endl;
     std::cout << "Public key size: " << ekPKE.size() << " bytes" << std::endl;
     std::cout << "Secret key size: " << dkPKE.size() << " bytes" << std::endl;
+    
     return { ekPKE, dkPKE };
 }
 
-void testKpkeEncrypt(std::vector <uint8_t> ek) {
+std::pair<std::vector<uint8_t>, std::vector<uint8_t>> testKpkeEncrypt(std::vector<uint8_t> ek) {
     std::vector<uint8_t> message(32, 0x42);  // test message (arbitrary 32 bytes)
     std::vector<uint8_t> randomness(32, 0x55);  // static randomness input
 
     std::vector<uint8_t> ciphertext = kpkeEncrypt(ek, message, randomness, Variants::MLKEM512);
+    std::vector<uint8_t> ciphertext2 = kpkeEncrypt(ek, message, randomness, Variants::MLKEM512);
 
-    std::cout << "[PASS] K-PKE.Encrypt() completed!\n";
-    std::cout << "Ciphertext size: " << ciphertext.size() << " bytes\n";
+    if (ciphertext == ciphertext2) {
+        std::cout << "[FAIL] Ciphertext mismatch: encryption not deterministic!";
+    }
+    else {
+        std::cout << "[PASS] K-PKE.Encrypt() completed!\n";
+        std::cout << "Ciphertext size: " << ciphertext.size() << " bytes\n";
+    }
+    return { message, ciphertext };
+}
+
+void testkpkeDecrypt(std::vector<uint8_t> dk, std::vector<uint8_t> c, std::vector<uint8_t> m) {
+    auto decrypted = kpkeDecrypt(dk, c, Variants::MLKEM512);
+
+    if (m == decrypted) {
+        std::cout << "[PASS]";
+    }
 }
 
 void testEncaps(int& pass, int& fail) {
@@ -439,6 +455,7 @@ int main() {
 
     bool supportsPassed = testSupportFunctions();
     auto [ek, dk] = testKpkeKeyGen();
-    testKpkeEncrypt(ek);
+    auto [m, c] = testKpkeEncrypt(ek);
+    testkpkeDecrypt(dk, c, m);
     return 0;
 }

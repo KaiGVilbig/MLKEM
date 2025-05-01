@@ -58,7 +58,7 @@ void kemDecapsInternal() {
     // h <- dk[768k + 32 : 768k + 64]
     // z <- dk[768k + 64 : 768k + 96]
     // m' <- K-PKE.Derypt(dkpke, c)
-    kpkeDecrypt(); // decrypt ciphertext
+    // kpkeDecrypt(); // decrypt ciphertext
 
     // (K', r') <- G(m'||h)
     // G();

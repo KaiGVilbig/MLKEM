@@ -183,6 +183,57 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
     return ciphertext;
 }
 
-void kpkeDecrypt() {
-	std::cout << "[INFO] kpkeDecode() called\n";
+std::vector<uint8_t> kpkeDecrypt(std::vector<uint8_t> dk, std::vector<uint8_t> c, Variants variant) {
+    int k, n, du, dv;
+    int n2 = 2;
+
+    std::tie(k, n, du, dv) = getVariant(variant);
+
+    // Step 1–2: Split ciphertext into c1 and c2
+    size_t c1_bytes = ((du * 256 + 7) / 8) * k;
+    size_t c2_bytes = (dv * 256 + 7) / 8;
+
+    if (c.size() != c1_bytes + c2_bytes) {
+        throw std::runtime_error("Ciphertext size mismatch.");
+    }
+
+    std::vector<std::vector<uint16_t>> u(k);
+    for (int i = 0; i < k; ++i) {
+        size_t offset = i * ((du * 256 + 7) / 8);
+        std::vector<uint8_t> part(c.begin() + offset, c.begin() + offset + ((du * 256 + 7) / 8));
+        auto decoded = byteDecode(part, du);
+        u[i] = Decompress(decoded, du);
+    }
+
+    std::vector<uint8_t> c2(c.begin() + c1_bytes, c.end());
+    auto decodedC2 = byteDecode(c2, dv);
+    std::vector<uint16_t> v = Decompress(decodedC2, dv);
+
+    // Step 4: Decode s from secret key
+    std::vector<std::vector<uint16_t>> s(k);
+    size_t bytesPerPoly = (12 * 256 + 7) / 8;
+    for (int i = 0; i < k; ++i) {
+        std::vector<uint8_t> enc(dk.begin() + i * bytesPerPoly, dk.begin() + (i + 1) * bytesPerPoly);
+        s[i] = byteDecode(enc, 12);
+    }
+
+    // Step 5–6: Compute w = inverseNTT(transpose(s) • NTT(u))
+    std::vector<uint16_t> w(256, 0);
+    for (int i = 0; i < k; ++i) {
+        auto u_ntt = NTT(u[i]);
+        for (int j = 0; j < 256; ++j) {
+            w[j] = (w[j] + static_cast<uint32_t>(s[i][j]) * u_ntt[j]) % q;
+        }
+    }
+
+    w = inverseNTT(w);
+
+    // Step 7: w - v mod q
+    for (int i = 0; i < 256; ++i) {
+        w[i] = (w[i] + q - v[i]) % q;
+    }
+
+    // Step 8: ByteEncode from polynomial w using compress(., 1)
+    auto compressed = Compress(w, 1);
+    return byteEncode(compressed, 1);
 }
