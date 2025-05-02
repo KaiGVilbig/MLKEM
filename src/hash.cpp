@@ -42,13 +42,11 @@ std::vector<uint8_t> J(std::vector<uint8_t> input) {
 std::pair<std::vector<uint8_t>, std::vector<uint8_t>> G(std::vector<uint8_t> input) {
     std::vector<uint8_t> output(64);
     EVP_MD_CTX* ctx = EVP_MD_CTX_new();
-    if (!ctx) std::cout << "bruh";
 
     if (EVP_DigestInit_ex(ctx, EVP_sha3_512(), nullptr) != 1 ||
         EVP_DigestUpdate(ctx, input.data(), input.size()) != 1 ||
         EVP_DigestFinal_ex(ctx, output.data(), nullptr) != 1) {
         EVP_MD_CTX_free(ctx);
-        std::cout << "help";
     }
 
     EVP_MD_CTX_free(ctx);

@@ -26,7 +26,7 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kpkeKeyGen(std::vector<uin
     std::tie(k, n, du, dv) = getVariant(variant);
 
     std::vector<uint8_t> dConcat = d;
-    dConcat.push_back(static_cast<uint8_t>(k));
+    // dConcat.push_back(static_cast<uint8_t>(k));
     std::pair<std::vector<uint8_t>, std::vector<uint8_t>> expanded = G(dConcat);
 
     std::vector<uint8_t> rho = expanded.first;
@@ -97,7 +97,7 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
 
     int N = 0;
 
-    // Step 1–2: Decode t? and extract ?
+    // Step 1ï¿½2: Decode t? and extract ?
     size_t tHatBytes = (12 * 256 + 7) / 8;
     std::vector<std::vector<uint16_t>> tHat(k);
     for (int i = 0; i < k; ++i) {
@@ -106,7 +106,7 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
     }
     std::vector<uint8_t> rho(ek.end() - 32, ek.end());
 
-    // Step 3–7: Regenerate A_hat
+    // Step 3ï¿½7: Regenerate A_hat
     std::vector<std::vector<uint16_t>> Ahat(k * k);
     for (int i = 0; i < k; ++i) {
         for (int j = 0; j < k; ++j) {
@@ -117,7 +117,7 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
         }
     }
 
-    // Step 8–14: Generate y, e1, e2 using PRF
+    // Step 8ï¿½14: Generate y, e1, e2 using PRF
     std::vector<std::vector<uint16_t>> y(k), e1(k);
     std::vector<uint16_t> e2;
     for (int i = 0; i < k; ++i) {
@@ -132,7 +132,7 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
         e2 = samplePolyCBD(prfEta(n2, r, N), n2); N++;
     }
 
-    // Step 15–17: NTT(y), compute u? = A?·? + ê?
+    // Step 15ï¿½17: NTT(y), compute u? = A?ï¿½? + ï¿½?
     for (int i = 0; i < k; ++i) y[i] = NTT(y[i]);
 
     std::vector<std::vector<uint16_t>> uHat(k, std::vector<uint16_t>(256, 0));
@@ -147,7 +147,7 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
         }
     }
 
-    // Step 18: compute v? = t??·?
+    // Step 18: compute v? = t??ï¿½?
     std::vector<uint16_t> vHat(256, 0);
     for (int i = 0; i < k; ++i) {
         auto product = multiplyNTT(tHat[i], y[i]);
@@ -167,13 +167,13 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
     std::cout << "\n";
 
 
-    // Step 20: compute v = NTT?¹(v?) + ? + e?
+    // Step 20: compute v = NTT?ï¿½(v?) + ? + e?
     std::vector<uint16_t> v = inverseNTT(vHat);
     for (int i = 0; i < 256; ++i) {
         v[i] = (v[i] + mu[i] + e2[i]) % q;
     }
 
-    // Step 21–23: Encode c? and c?
+    // Step 21ï¿½23: Encode c? and c?
     std::vector<uint8_t> ciphertext;
     for (int i = 0; i < k; ++i) {
         auto compressed = Compress(uHat[i], du);
@@ -194,7 +194,7 @@ std::vector<uint8_t> kpkeDecrypt(std::vector<uint8_t> dk, std::vector<uint8_t> c
 
     std::tie(k, n, du, dv) = getVariant(variant);
 
-    // Step 1–2: Split ciphertext into c1 and c2
+    // Step 1ï¿½2: Split ciphertext into c1 and c2
     size_t c1_bytes = ((du * 256 + 7) / 8) * k;
     size_t c2_bytes = (dv * 256 + 7) / 8;
 
@@ -222,7 +222,7 @@ std::vector<uint8_t> kpkeDecrypt(std::vector<uint8_t> dk, std::vector<uint8_t> c
         s[i] = byteDecode(enc, 12);
     }
 
-    // Step 5–6: Compute w = inverseNTT(transpose(s) • NTT(u))
+    // Step 5ï¿½6: Compute w = inverseNTT(transpose(s) ï¿½ NTT(u))
     std::vector<uint16_t> w(256, 0);
     for (int i = 0; i < k; ++i) {
         auto u_ntt = NTT(u[i]);
