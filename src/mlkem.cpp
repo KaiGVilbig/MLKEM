@@ -11,19 +11,19 @@ extern "C" {
 
     EXPORT_API void kemKeyGen() {
         std::cout << "[INFO] ML-KEM.KeyGen() called\n";
-        kemKeyGenInternal();
+        // kemKeyGenInternal();
         std::cout << "[INFO] ML-KEM.KeyGen() completed\n";
     }
 
     EXPORT_API void kemEncaps() {
         std::cout << "[INFO] ML-KEM.Encaps() called\n";
-        kemEncapsInternal();
+        // kemEncapsInternal();
         std::cout << "[INFO] ML-KEM.Encaps() completed\n";
     }
 
     EXPORT_API void kemDecaps() {
         std::cout << "[INFO] ML-KEM.Decaps() called\n";
-        kemDecapsInternal();
+        // kemDecapsInternal();
         std::cout << "[INFO] ML-KEM.Decaps() completed\n";
     }
 

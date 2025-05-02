@@ -13,17 +13,21 @@
     Output: encapsulation key ek element of B^384k+32
     Output: decapsulation key dk element of B^768k+96
 */
-void kemKeyGenInternal() {
-    std::cout << "[INFO] ML-KEM.KeyGen_internal() called\n";
-    // ekpke, dkpke <- K_PKE.KeyGen(d)
-    //kpkeKeyGen(); // Run kye generation for K-PKE
+std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kemKeyGenInternal(std::vector<uint8_t> d, std::vector<uint8_t> z, Variants variant) {
+    auto [ekpke, dkpke] = kpkeKeyGen(d, variant);
 
-    // ek <- ekpke
-    // dk <- (dkpke||ek||H(ek)||z)
-    // H(); // KEM decaps key includes PKE decryption key
-    std::cout << "[INFO] ML-KEM.KeyGen_internal() completed\n";
+    std::vector<uint8_t> ek = ekpke;
+    std::vector<uint8_t> dk;
 
-    // return (ek, dk)
+    std::vector<uint8_t> hek = H(ek);
+
+    dk.reserve(dkpke.size() + ek.size() + hek.size() + z.size());
+    dk.insert(dk.end(), dkpke.begin(), dkpke.end());
+    dk.insert(dk.end(), ek.begin(), ek.end());
+    dk.insert(dk.end(), hek.begin(), hek.end());
+    dk.insert(dk.end(), z.begin(), z.end());
+
+    return {ek, dk};
 }
 
 /*
