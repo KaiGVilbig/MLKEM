@@ -31,10 +31,10 @@ std::vector<uint16_t> SampleNTT(std::vector<uint8_t> B) {
         uint16_t d1 = C0 + 256 * (C1 % 16);
         uint16_t d2 = (C1 / 16) + 16 * C2;
 
-        if (d1 < 4096) {
+        if (d1 < q) {
             aHat[j++] = d1;
         }
-        if (j < 256 && d2 < 4096) {
+        if (j < 256 && d2 < q) {
             aHat[j++] = d2;
         }
     }
