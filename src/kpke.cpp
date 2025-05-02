@@ -64,12 +64,13 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kpkeKeyGen(std::vector<uin
     std::vector<std::vector<uint16_t>> t_hat(k, std::vector<uint16_t>(256, 0));
     for (int i = 0; i < k; ++i) {
         for (int j = 0; j < k; ++j) {
-            for (size_t coeff = 0; coeff < 256; ++coeff) {
-                t_hat[i][coeff] = (t_hat[i][coeff] + static_cast<uint32_t>(A_hat[i * k + j][coeff]) * s[j][coeff]) % q;
-            }
+            //for (size_t coeff = 0; coeff < 256; ++coeff) {
+            //    t_hat[i][coeff] = (t_hat[i][coeff] + static_cast<uint32_t>(A_hat[i * k + j][coeff]) * s[j][coeff]) % q;
+            //}
+            t_hat[i] = multiplyNTT(A_hat[i * k + j], s[j]);
         }
         for (size_t coeff = 0; coeff < 256; ++coeff) {
-            t_hat[i][coeff] = (t_hat[i][coeff] + e[i][coeff]) % q;
+            t_hat[i][coeff] = modAdd(t_hat[i][coeff], e[i][coeff]);
         }
     }
 
