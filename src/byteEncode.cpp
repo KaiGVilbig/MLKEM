@@ -73,7 +73,6 @@ uint8_t bitRev(uint8_t ini) {
     return reversedByte / 2;
 }
 
-
 std::vector<uint16_t> Compress(std::vector<uint16_t> input, int d) {
     std::vector<uint16_t> output(input.size());
     uint16_t scale = 1 << d; // 2^d

@@ -1,5 +1,5 @@
 #include "hash.h"
-
+#include <iostream>
 std::vector<uint8_t> prfEta(int eta, std::vector<uint8_t> s, uint8_t b) {
 
     // Concatenate s || b
@@ -41,11 +41,19 @@ std::vector<uint8_t> J(std::vector<uint8_t> input) {
 // G(c) := SHA3-512(c), outputs 64 bytes split into two 32-byte parts
 std::pair<std::vector<uint8_t>, std::vector<uint8_t>> G(std::vector<uint8_t> input) {
     std::vector<uint8_t> output(64);
-    EVP_Digest(input.data(), input.size(), output.data(), nullptr, EVP_sha3_512(), nullptr);
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    if (!ctx) std::cout << "bruh";
 
-    // Split into two 32-byte parts
+    if (EVP_DigestInit_ex(ctx, EVP_sha3_512(), nullptr) != 1 ||
+        EVP_DigestUpdate(ctx, input.data(), input.size()) != 1 ||
+        EVP_DigestFinal_ex(ctx, output.data(), nullptr) != 1) {
+        EVP_MD_CTX_free(ctx);
+        std::cout << "help";
+    }
+
+    EVP_MD_CTX_free(ctx);
+
     std::vector<uint8_t> a(output.begin(), output.begin() + 32);
     std::vector<uint8_t> b(output.begin() + 32, output.end());
-
     return { a, b };
 }

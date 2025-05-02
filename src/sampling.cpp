@@ -46,8 +46,6 @@ std::vector<uint16_t> SampleNTT(std::vector<uint8_t> B) {
     return aHat;
 }
 
-
-
 std::vector<uint16_t> samplePolyCBD(std::vector<uint8_t>B, uint8_t n) {
     // Algorithm line 1: Convert input bytes to bits
     std::vector<uint8_t> b = bytesToBits(B);

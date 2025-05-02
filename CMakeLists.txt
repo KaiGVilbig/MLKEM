@@ -12,6 +12,9 @@ target_include_directories(mlkem PUBLIC include)
 
 # Add OpenSSL library
 find_package(OpenSSL REQUIRED)
+message(STATUS "OpenSSL Version: ${OPENSSL_VERSION}")
+message(STATUS "OpenSSL Include Dir: ${OPENSSL_INCLUDE_DIR}")
+message(STATUS "OpenSSL Libraries: ${OPENSSL_LIBRARIES}")
 target_link_libraries(mlkem PRIVATE OpenSSL::Crypto)
 
 # Add test executable

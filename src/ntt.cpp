@@ -40,7 +40,7 @@ std::vector<uint16_t> NTT(std::vector<uint16_t> f) {
             i++;
             for (int j = start; j < start + len; j++) {
                 uint16_t t = modMul(zeta, fhat[j + len]); // zeta * fhat[j + len] % q;
-                fhat[j + len] = modSub(fhat[j], t) % q;
+                fhat[j + len] = modSub(fhat[j], t);
                 fhat[j] = (fhat[j] + t) % q;
             }
         }
@@ -67,7 +67,7 @@ std::vector<uint16_t> inverseNTT(std::vector<uint16_t> fhat) {
     }
 
     for (int j = 0; j < f.size(); j++) {
-        f[j] = modMul(f[j], 3303); // f[j] * 3303 % q;
+        f[j] = modMul(f[j], qInvN); // f[j] * 3303 % q;
     }
 
     return f;
@@ -88,7 +88,7 @@ std::vector<uint16_t> BaseCaseMultiply(uint16_t a0, uint16_t a1, uint16_t b0, ui
     uint32_t t2 = modMulSigned(modMul(a1, b1), z2);
     uint16_t c0 = modAdd(t1, t2);
 
-    uint16_t c1 = (modMul(a0, b1) + modMul(a1, b0)) % q;
+    uint16_t c1 = modAdd(modMul(a0, b1), modMul(a1, b0));
 
     return {c0, c1};
 }
