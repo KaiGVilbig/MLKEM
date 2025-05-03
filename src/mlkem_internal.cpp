@@ -4,8 +4,15 @@
 #include "byteEncode.h"
 #include "random.h"
 #include "hash.h"
-#include <iostream>
 #include <vector>
+
+std::string toHex(std::vector<uint8_t> data) {
+    std::ostringstream oss;
+    for (auto byte : data) {
+        oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte);
+    }
+    return oss.str();
+}
 
 /*
     Input: randomness d element of B^32

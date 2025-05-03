@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <openssl/evp.h>
 
-void secureRandomBytes();
-std::vector<uint8_t> PRF(std::vector<uint8_t>, int);
+std::vector<uint8_t> secureRandomBytes();
+//std::vector<uint8_t> PRF(std::vector<uint8_t>, int);
 
 #endif // RANDOM_H

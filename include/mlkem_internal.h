@@ -1,6 +1,11 @@
 #ifndef MLKEM_INTERNAL_H
 #define MLKEM_INTERNAL_H
 #include "kpke.h"
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+
+std::string toHex(std::vector<uint8_t>);
 
 std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kemKeyGenInternal(std::vector<uint8_t>, std::vector<uint8_t>, Variants);
 std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kemEncapsInternal(std::vector<uint8_t>, std::vector<uint8_t>, Variants);

@@ -8,6 +8,8 @@ std::vector<uint8_t> getSeed(Variants variant) {
         return seed768;
     case Variants::MLKEM1024:
         return seed1024;
+    defaut:
+        return seed512;
     }
 }
 std::vector<uint8_t> getZ(Variants variant) {
@@ -18,6 +20,8 @@ std::vector<uint8_t> getZ(Variants variant) {
         return z768;
     case Variants::MLKEM1024:
         return z1024;
+    default:
+        return z512;
     }
 }
 std::vector<uint8_t> getMessage(Variants variant) {
@@ -28,6 +32,8 @@ std::vector<uint8_t> getMessage(Variants variant) {
         return message768;
     case Variants::MLKEM1024:
         return message1024;
+    default:
+        return message512;
     }
 }
 std::vector<uint8_t> getK(Variants variant) {
@@ -38,6 +44,8 @@ std::vector<uint8_t> getK(Variants variant) {
         return K768;
     case Variants::MLKEM1024:
         return K1024;
+    default:
+        return K512;
     }
 }
 std::string getVarString(Variants variant) {
@@ -48,6 +56,8 @@ std::string getVarString(Variants variant) {
         return "MLKEM768";
     case Variants::MLKEM1024:
         return "MLKEM1024";
+    default:
+        return "MLKEM512";
     }
 }
 
