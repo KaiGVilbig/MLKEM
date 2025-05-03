@@ -36,16 +36,17 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kemKeyGenInternal(std::vec
     Output: shared secret key K element of B^32
     Output: ciphertext c element of B^32(duk+dv)
 */
-void kemEncapsInternal() {
-    std::cout << "[INFO] ML-KEM.Encaps_internal() called\n";
-    // (K, r) <- G(m||H(ek))
-    // G(); // Derive shared secret key K and randomness r
+std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kemEncapsInternal(std::vector<uint8_t> ek, std::vector<uint8_t> m, Variants variant) {
+    std::vector<uint8_t> hek = H(ek);
+    std::vector<uint8_t> mhek;
+    mhek.reserve(m.size() + hek.size());
+    mhek.insert(mhek.end(), m.begin(), m.end());
+    mhek.insert(mhek.end(), hek.begin(), hek.end());
+    auto [K, r] = G(mhek);
 
-    // c <- K-PKE.Encrypt(ek, m, r)
-    // kpkeEncrypt(); // encrypt m using K-PKE with randomness r
-    std::cout << "[INFO] ML-KEM.Encaps_internal() completed\n";
+    std::vector<uint8_t> c = kpkeEncrypt(ek, m, r, variant);
 
-    // return (K, c)
+    return { K, c };
 }
 
 

@@ -3,7 +3,7 @@
 #include "kpke.h"
 
 std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kemKeyGenInternal(std::vector<uint8_t>, std::vector<uint8_t>, Variants);
-void kemEncapsInternal();
+std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kemEncapsInternal(std::vector<uint8_t>, std::vector<uint8_t>, Variants);
 void kemDecapsInternal();
 
 #endif // !MLKEM_INTERNAL_H

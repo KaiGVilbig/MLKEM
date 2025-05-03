@@ -26,7 +26,7 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kpkeKeyGen(std::vector<uin
     std::tie(k, n, du, dv) = getVariant(variant);
 
     std::vector<uint8_t> dConcat = d;
-    // dConcat.push_back(static_cast<uint8_t>(k));
+     //dConcat.push_back(static_cast<uint8_t>(k));
     std::pair<std::vector<uint8_t>, std::vector<uint8_t>> expanded = G(dConcat);
 
     std::vector<uint8_t> rho = expanded.first;
@@ -62,15 +62,17 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kpkeKeyGen(std::vector<uin
     }
 
     std::vector<std::vector<uint16_t>> t_hat(k, std::vector<uint16_t>(256, 0));
-    for (int i = 0; i < k; ++i) {
-        for (int j = 0; j < k; ++j) {
-            //for (size_t coeff = 0; coeff < 256; ++coeff) {
-            //    t_hat[i][coeff] = (t_hat[i][coeff] + static_cast<uint32_t>(A_hat[i * k + j][coeff]) * s[j][coeff]) % q;
-            //}
-            t_hat[i] = multiplyNTT(A_hat[i * k + j], s[j]);
+    for (size_t i = 0; i < k; ++i) {
+        for (size_t j = 0; j < k; ++j) {
+            std::vector<uint16_t> prod = multiplyNTT(A_hat[i * k + j], s[j]);
+
+            for (size_t idx = 0; idx < 256; ++idx) {
+                t_hat[i][idx] = modAdd(t_hat[i][idx], prod[idx]);
+            }
         }
-        for (size_t coeff = 0; coeff < 256; ++coeff) {
-            t_hat[i][coeff] = modAdd(t_hat[i][coeff], e[i][coeff]);
+        // Add e_hat[i]
+        for (size_t idx = 0; idx < 256; ++idx) {
+            t_hat[i][idx] = modAdd(t_hat[i][idx], e[i][idx]);
         }
     }
 

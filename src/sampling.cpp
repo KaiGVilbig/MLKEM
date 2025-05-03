@@ -6,9 +6,9 @@
 #include <iostream>
 
 std::vector<uint16_t> SampleNTT(std::vector<uint8_t> B) {
-    if (B.size() != 34) {
-        throw std::invalid_argument("SampleNTT requires a 34-byte input.");
-    }
+    //if (B.size() != 34) {
+    //    throw std::invalid_argument("SampleNTT requires a 34-byte input.");
+    //}
 
     XOF xof;
     xof.init();
