@@ -55,27 +55,47 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kemEncapsInternal(std::vec
     Input: ciphertext c element of B^32(duk+dv)
     Output: shared secret key K element of B^32
 */
-void kemDecapsInternal() {
-    std::cout << "[INFO] ML-KEM.Decaps_internal() called\n";
+std::vector<uint8_t> kemDecapsInternal(std::vector<uint8_t> dk, std::vector<uint8_t> c, Variants variant) {
+    int k = 0;
+    switch (variant) {
+        case Variants::MLKEM512:
+            k = 2;
+            break;
+        case Variants::MLKEM768:
+            k = 3;
+            break;
+        case Variants::MLKEM1024:
+            k = 4;
+            break;
+        default:
+            k = 2;
+            break;
+    }
 
-    // dkpke ← dk[0 ∶ 384k]
-    // ekpke <- dk[384k: 768k + 32]
-    // h <- dk[768k + 32 : 768k + 64]
-    // z <- dk[768k + 64 : 768k + 96]
-    // m' <- K-PKE.Derypt(dkpke, c)
-    // kpkeDecrypt(); // decrypt ciphertext
+    std::vector<uint8_t> dkpke(dk.begin(), dk.begin() + (384 * k));
+    std::vector<uint8_t> ekpke(dk.begin() + (384 * k), dk.begin() + (768 * k) + 32);
 
-    // (K', r') <- G(m'||h)
-    // G();
+    std::vector<uint8_t> h(dk.begin() + (768 * k) + 32, dk.begin() + (768 * k) + 64);
+    std::vector<uint8_t> z(dk.begin() + (768 * k) + 64, dk.begin() + (768 * k) + 96);
 
-    // K <- J(z||c)
-    // J();
+    std::vector<uint8_t> m = kpkeDecrypt(dkpke, c, variant);
+    std::vector<uint8_t> mh;
+    mh.reserve(m.size() + h.size());
+    mh.insert(mh.end(), m.begin(), m.end());
+    mh.insert(mh.end(), h.begin(), h.end());
+    auto [Kp, r] = G(mh);
 
-    // c' <- K-PKE.Encrypt(epkpe, m', r')
-    // kpkeEncrypt(); // re-encrypt using the derived randomness r'
-    
-    // if c != c' then K' <- K
-    std::cout << "[INFO] ML-KEM.Decaps_internal() completed\n";
+    std::vector<uint8_t> zc;
+    zc.reserve(z.size() + c.size());
+    zc.insert(zc.end(), z.begin(), z.end());
+    zc.insert(zc.end(), c.begin(), c.end());
+    std::vector<uint8_t> K = J(zc);
 
-    // return K'
+    std::vector<uint8_t> cp = kpkeEncrypt(ekpke, m, r, variant);
+
+    if (c != cp) {
+        Kp = K;
+    }
+
+    return Kp;
 }

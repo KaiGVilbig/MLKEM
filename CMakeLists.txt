@@ -5,7 +5,7 @@ project(mlkem_lib)
 set(CMAKE_CXX_STANDARD 17)
 
 # Define the shared library
-add_library(mlkem SHARED src/mlkem.cpp "include/random.h" "src/random.cpp" "include/ntt.h" "src/ntt.cpp" "src/sampling.cpp"   "include/byteEncode.h" "src/byteEncode.cpp" "include/kpke.h" "src/kpke.cpp"  "include/mlkem_internal.h" "src/mlkem_internal.cpp" "include/hash.h" "src/hash.cpp" "include/xof.h" "src/xof.cpp")
+add_library(mlkem SHARED src/mlkem.cpp "include/random.h" "src/random.cpp" "include/ntt.h" "src/ntt.cpp" "src/sampling.cpp"   "include/byteEncode.h" "src/byteEncode.cpp" "include/kpke.h" "src/kpke.cpp"  "include/mlkem_internal.h" "src/mlkem_internal.cpp" "include/hash.h" "src/hash.cpp" "include/xof.h" "src/xof.cpp" "tests/test.h")
 
 # Include directory
 target_include_directories(mlkem PUBLIC include)
@@ -18,7 +18,7 @@ message(STATUS "OpenSSL Libraries: ${OPENSSL_LIBRARIES}")
 target_link_libraries(mlkem PRIVATE OpenSSL::Crypto)
 
 # Add test executable
-add_executable(mlkem_tests tests/test.cpp "src/random.cpp" "include/ntt.h" "src/ntt.cpp" "src/sampling.cpp"   "include/byteEncode.h" "src/byteEncode.cpp" "include/kpke.h" "src/kpke.cpp"  "include/mlkem_internal.h" "src/mlkem_internal.cpp" "include/hash.h" "src/hash.cpp" "include/xof.h" "src/xof.cpp")
+add_executable(mlkem_tests tests/test.cpp "src/random.cpp" "include/ntt.h" "src/ntt.cpp" "src/sampling.cpp"   "include/byteEncode.h" "src/byteEncode.cpp" "include/kpke.h" "src/kpke.cpp"  "include/mlkem_internal.h" "src/mlkem_internal.cpp" "include/hash.h" "src/hash.cpp" "include/xof.h" "src/xof.cpp" "tests/test.h")
 
 target_include_directories(mlkem_tests PRIVATE include)
 target_link_libraries(mlkem_tests PRIVATE mlkem)

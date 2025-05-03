@@ -246,17 +246,6 @@ std::vector<uint8_t> kpkeDecrypt(std::vector<uint8_t> dk, std::vector<uint8_t> c
 
     // Step 8: ByteEncode from polynomial w using compress(., 1)
     auto compressed = Compress(w, 1);
-    std::cout << "First 8 compressed bits: ";
-    for (int i = 0; i < 8; ++i) std::cout << +compressed[i] << " ";
-    std::cout << "\n";
-    std::cout << "Debugging Decryption Output:\n";
-    for (int i = 0; i < 8; ++i) {
-        std::cout << "i = " << i
-            << " | v[i] = " << v[i]
-            << " | reconstructed v' = " << w[i]
-                << " | mu_hat = " << Compress({ w[i] }, 1)[0] << "\n";
-    }
-
 
     return byteEncode(compressed, 1);
 }
