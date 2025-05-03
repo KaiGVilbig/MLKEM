@@ -86,11 +86,12 @@ std::vector<uint16_t> Compress(std::vector<uint16_t> input, int d) {
 
 std::vector<uint16_t> Decompress(std::vector<uint16_t> input, int d) {
     std::vector<uint16_t> output(input.size());
-    uint16_t scale = static_cast<uint16_t>(1 << d);
+    uint32_t rounding = 1 << (d - 1);  // 2^{d-1}
+    uint32_t scale = 1 << d;           // 2^d
 
     for (size_t i = 0; i < input.size(); ++i) {
-        uint32_t scaled = static_cast<uint32_t>(input[i]) * q + (scale / 2);
-        output[i] = static_cast<uint16_t>(scaled / scale);
+        uint32_t val = static_cast<uint32_t>(input[i]) * q + rounding;
+        output[i] = static_cast<uint16_t>(val / scale);
     }
 
     return output;

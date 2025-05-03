@@ -123,57 +123,59 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
     // Step 8�14: Generate y, e1, e2 using PRF
     std::vector<std::vector<uint16_t>> y(k), e1(k);
     std::vector<uint16_t> e2;
-    for (int i = 0; i < k; ++i) {
-        y[i] = samplePolyCBD(prfEta(n, r, N), n); N++;
+    for (int i = 0; i < k; i++) {
+        y[i] = samplePolyCBD(prfEta(n, r, N), n); 
+        N++;
     }
-    for (int i = 0; i < k; ++i) {
-        e1[i] = samplePolyCBD(prfEta(n2, r, N), n2); N++;
+    for (int i = 0; i < k; i++) {
+        e1[i] = samplePolyCBD(prfEta(n2, r, N), n2); 
+        N++;
     }
-    {
-        std::vector<uint8_t> prf = r;
-        prf.push_back((N >> 8) & 0xFF); prf.push_back(N & 0xFF);
-        e2 = samplePolyCBD(prfEta(n2, r, N), n2); N++;
-    }
+    e2 = samplePolyCBD(prfEta(n2, r, N), n2); N++;
 
     // Step 15�17: NTT(y), compute u? = A?�? + �?
     for (int i = 0; i < k; ++i) y[i] = NTT(y[i]);
 
     std::vector<std::vector<uint16_t>> uHat(k, std::vector<uint16_t>(256, 0));
-    for (int i = 0; i < k; ++i) {
-        for (int j = 0; j < k; ++j) {
-            auto product = multiplyNTT(Ahat[i * k + j], y[j]);
-            for (int l = 0; l < 256; ++l)
-                uHat[i][l] = (uHat[i][l] + product[l]) % q;
-        }
-        for (int l = 0; l < 256; ++l) {
-            uHat[i][l] = (uHat[i][l] + e1[i][l]) % q;
-        }
-    }
 
-    // Step 18: compute v? = t??�?
-    std::vector<uint16_t> vHat(256, 0);
     for (int i = 0; i < k; ++i) {
-        auto product = multiplyNTT(tHat[i], y[i]);
+        std::vector<uint16_t> acc(256, 0);
+
+        for (int j = 0; j < k; ++j) {
+            // Aᵗ is accessed as A_hat[j * k + i]
+            std::vector<uint16_t> prod = multiplyNTT(Ahat[j * k + i], y[j]);
+            for (int l = 0; l < 256; ++l) {
+                acc[l] = (acc[l] + prod[l]) % q;
+            }
+        }
+
+        // Inverse NTT
+        std::vector<uint16_t> u_i = inverseNTT(acc);
+
+        // Add e_u[i]
         for (int l = 0; l < 256; ++l) {
-            vHat[l] = (vHat[l] + product[l]) % q;
+            uHat[i][l] = (u_i[l] + e1[i][l]) % q;
         }
     }
 
     // Step 19: Decompress message m
-    std::vector<uint16_t> mu(256, 0);
-    auto messageBits = byteDecode(m, 1);  // returns 256 0/1 values
-    for (int i = 0; i < 256; ++i) {
-        mu[i] = messageBits[i] ? (q / 2) : 0;
+    std::vector<uint16_t> mu = Decompress(byteDecode(m, 1), 1);  // returns 256 0/1 values
+
+    // Step 18: compute v? = t??�?
+    std::vector<uint16_t> acc(256, 0);
+
+    for (int i = 0; i < k; ++i) {
+        std::vector<uint16_t> prod = multiplyNTT(tHat[i], y[i]);
+        for (int j = 0; j < 256; ++j) {
+            acc[j] = (acc[j] + prod[j]) % q;
+        }
     }
-    std::cout << "mu (first 8): ";
-    for (int i = 0; i < 8; ++i) std::cout << mu[i] << " ";
-    std::cout << "\n";
 
+    std::vector<uint16_t> v = inverseNTT(acc);
 
-    // Step 20: compute v = NTT?�(v?) + ? + e?
-    std::vector<uint16_t> v = inverseNTT(vHat);
-    for (int i = 0; i < 256; ++i) {
-        v[i] = (v[i] + mu[i] + e2[i]) % q;
+    // Add e2 and mu
+    for (int j = 0; j < 256; ++j) {
+        v[j] = (v[j] + e2[j] + mu[j]) % q;
     }
 
     // Step 21�23: Encode c? and c?
