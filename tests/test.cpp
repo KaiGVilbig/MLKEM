@@ -8,7 +8,7 @@ std::vector<uint8_t> getSeed(Variants variant) {
         return seed768;
     case Variants::MLKEM1024:
         return seed1024;
-    defaut:
+    default:
         return seed512;
     }
 }
@@ -100,32 +100,6 @@ void testkpkeDecrypt(int& pass, int& fail, std::vector<uint8_t> dk, std::vector<
     }
 }
 
-
-void testEncaps(int& pass, int& fail) {
-    try {
-        std::cout << "[TEST] Running Encapsulation Test...\n";
-        kemEncaps();
-        std::cout << "[PASS] Encapsulation executed successfully.\n\n";
-        pass++;
-    }
-    catch (const std::exception& e) {
-        std::cerr << "[FAIL] Encapsulation Test Failed: " << e.what() << "\n\n";
-        fail++;
-    }
-}
-
-void testDecaps(int& pass, int& fail) {
-    try {
-        std::cout << "[TEST] Running Decapsulation Test...\n";
-        kemDecaps();
-        std::cout << "[PASS] Decapsulation executed successfully.\n\n";
-        pass++;
-    }
-    catch (const std::exception& e) {
-        std::cerr << "[FAIL] Decapsulation Test Failed: " << e.what() << "\n\n";
-        fail++;
-    }
-}
 
 void testBitsBytesConversions(int& pass, int& fail) {
     std::vector<uint8_t> bits = {1, 1, 0, 1, 0, 0, 0, 1}; 
