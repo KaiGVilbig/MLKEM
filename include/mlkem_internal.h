@@ -5,8 +5,6 @@
 #include <sstream>
 #include <iomanip>
 
-std::string toHex(std::vector<uint8_t>);
-
 std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kemKeyGenInternal(std::vector<uint8_t>, std::vector<uint8_t>, Variants);
 std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kemEncapsInternal(std::vector<uint8_t>, std::vector<uint8_t>, Variants);
 std::vector<uint8_t> kemDecapsInternal(std::vector<uint8_t>, std::vector<uint8_t>, Variants);

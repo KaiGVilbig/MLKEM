@@ -362,6 +362,17 @@ int main() {
         std::cout << "All tests passed\n\n";
         std::cout << "===============================\n\n";
     }
+    auto test = mlkemKeyGen_512();
+    auto test2 = mlkemEncaps_512(test.ek);
+    auto test3 = mlkemDecaps_512(test.dk, test2.c);
+
+    auto test4 = mlkemKeyGen_768();
+    auto test5 = mlkemEncaps_768(test4.ek);
+    auto test6 = mlkemDecaps_768(test4.dk, test5.c);
+
+    auto test7 = mlkemKeyGen_1024();
+    auto test8 = mlkemEncaps_1024(test7.ek);
+    auto test9 = mlkemDecaps_1024(test7.dk, test8.c);
 
     return 0;
 }

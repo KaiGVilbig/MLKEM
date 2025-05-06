@@ -203,9 +203,9 @@ std::vector<uint8_t> kpkeDecrypt(std::vector<uint8_t> dk, std::vector<uint8_t> c
     size_t c1_bytes = ((du * 256 + 7) / 8) * k;
     size_t c2_bytes = (dv * 256 + 7) / 8;
 
-    if (c.size() != c1_bytes + c2_bytes) {
-        throw std::runtime_error("Ciphertext size mismatch.");
-    }
+    //if (c.size() != c1_bytes + c2_bytes) {
+    //    throw std::runtime_error("Ciphertext size mismatch.");
+    //}
 
     std::vector<std::vector<uint16_t>> u(k);
     for (int i = 0; i < k; ++i) {

@@ -1,22 +1,24 @@
 {
     "version": 3,
     "configurePresets": [
-        {
-            "name": "windows-base",
-            "hidden": true,
-            "generator": "Ninja",
-            "binaryDir": "build",
-            "installDir": "${sourceDir}/out/install/${presetName}",
-            "cacheVariables": {
-                "CMAKE_C_COMPILER": "cl.exe",
-                "CMAKE_CXX_COMPILER": "cl.exe"
-            },
-            "condition": {
-                "type": "equals",
-                "lhs": "${hostSystemName}",
-                "rhs": "Windows"
-            }
+      {
+        "name": "windows-base",
+        "hidden": true,
+        "generator": "Ninja",
+        "binaryDir": "build",
+        "installDir": "${sourceDir}/out/install/${presetName}",
+        "cacheVariables": {
+          "CMAKE_C_COMPILER": "cl.exe",
+          "CMAKE_CXX_COMPILER": "cl.exe",
+          "OPENSSL_ROOT_DIR": "C:/Program Files/OpenSSL",
+          "OPENSSL_INCLUDE_DIR": "C:/Program Files/OpenSSL/include"
         },
+        "condition": {
+          "type": "equals",
+          "lhs": "${hostSystemName}",
+          "rhs": "Windows"
+        }
+      },
         {
             "name": "x64-debug",
             "displayName": "x64 Debug",
@@ -33,9 +35,11 @@
             "name": "x64-release",
             "displayName": "x64 Release",
             "inherits": "x64-debug",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "Release",
+            "OPENSSL_ROOT_DIR": "C:/Program Files/OpenSSL",
+            "OPENSSL_INCLUDE_DIR": "C:/Program Files/OpenSSL/include"
+          }
         },
         {
             "name": "x86-debug",
@@ -53,9 +57,11 @@
             "name": "x86-release",
             "displayName": "x86 Release",
             "inherits": "x86-debug",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "Release",
+            "OPENSSL_ROOT_DIR": "C:/Program Files/OpenSSL",
+            "OPENSSL_INCLUDE_DIR": "C:/Program Files/OpenSSL/include"
+          }
         },
         {
             "name": "GCC 13.3.0 x86_64-linux-gnu",
