@@ -74,6 +74,9 @@ To run the ML-KEM implementation:
 ./build/mlkem_tests
 ```
 
+## 🎁 Wrappers
+Wrappers for the mlkem.dll/mlkem.so are located in `/wrappers`. To use the wrappers, they must be placed in the same directory the dll/.so are located in
+
 ## 🧪 Testing the Code
 The project includes a test suite to ensure functionality.
 
