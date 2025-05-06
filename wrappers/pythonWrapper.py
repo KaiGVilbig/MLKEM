@@ -1,8 +1,16 @@
+import os
+import sys
 import ctypes
 from ctypes import CDLL, Structure, c_uint8
 
-# Load the DLL
-mlkem = CDLL("./mlkem.dll")
+# Load the library
+def loadLibrary():
+    if (sys.platform.startswith('win')):
+        return CDLL("./mlkem.dll")
+    elif (sys.platform.startswith('linux')):
+        return CDLL("./libmlkem.so")
+
+mlkem = loadLibrary()
 
 # MLKEM 512 structs
 class Keys512(Structure):
