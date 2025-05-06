@@ -47,7 +47,7 @@ git clone git@github.com:KaiGVilbig/MLKEM.git
 cd MLKEM
 ```
 
-2. **Clone the BoringSSL Repository into `external/boringssl`
+2. **Clone the BoringSSL Repository into `external/boringssl`**
 ```sh
 git clone https://github.com/google/boringssl.git external/boringssl
 ```
@@ -161,3 +161,4 @@ All tests passed
 
 ## 📄 Known Issues
 - have not tested other methods of building on windows such as g++, or build systems like Ninja
+- currently building all of boringssl, in the future, this will only build what we need, significantly cutting build time
