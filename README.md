@@ -18,8 +18,11 @@ This repository contains:
 
 ## 📦 Project Dependencies
 Ensure the following dependencies are installed:
-- **OpenSSL** (for secure RNG)
+- **OpenSSL** (for sha3 and shake)
 - **CMake** (for cross-platform builds)
+
+  *This project uses BoringSSL's RNG function, since Configuring OpenSSL for fips mode is complicated.**
+- **BoringSSL** (for secure RNG)
 
 ### Installing Dependencies
 **Windows**
@@ -44,17 +47,22 @@ git clone git@github.com:KaiGVilbig/MLKEM.git
 cd MLKEM
 ```
 
-2. **Configure the Build System**
+2. **Clone the BoringSSL Repository into `/external/boringssl`
+```sh
+git clone https://github.com/google/boringssl.git
+```
+
+3. **Configure the Build System**
 ```sh
 cmake -B build
 ```
 
-3. **Build the Project**
+4. **Build the Project**
 ```sh
 cmake --build build --config Debug
 ```
 
-4. **(Optional) Clean the Build**
+5. **(Optional) Clean the Build**
 ```sh
 cmake --build build --target clean
 ```
@@ -81,33 +89,72 @@ cmake --build build --config Debug
 
 Expected Output:
 ```
-[TEST] Running KeyGen Test...
-[INFO] ML-KEM.KeyGen() called
-[INFO] ML-KEM.KeyGen_internal() called
-[INFO] kpkeKeyGen() called
-[INFO] ML-KEM.KeyGen_internal() completed
-[INFO] ML-KEM.KeyGen() completed
-[PASS] KeyGen executed successfully.
+===============================
+ ML-KEM Library Test Suite
+===============================
 
-[TEST] Running Encapsulation Test...
-[INFO] ML-KEM.Encaps() called
-[INFO] ML-KEM.Encaps_internal() called
-[INFO] kpkeEncode() called
-[INFO] ML-KEM.Encaps_internal() completed
-[INFO] ML-KEM.Encaps() completed
-[PASS] Encapsulation executed successfully.
+Test Support Functions
+-------------------------------
 
-[TEST] Running Decapsulation Test...
-[INFO] ML-KEM.Decaps() called
-[INFO] ML-KEM.Decaps_internal() called
-[INFO] kpkeDecode() called
-[INFO] kpkeEncode() called
-[INFO] ML-KEM.Decaps_internal() completed
-[INFO] ML-KEM.Decaps() completed
-[PASS] Decapsulation executed successfully.
+[TEST] Running Bits to Bytes conversion function Test...
+[PASS] Bits to Bytes conversion executed successfully
+
+[TEST] Running Bytes to Bits conversion function Test...
+[PASS] Bytes to Bits conversion executed successfully
+
+[TEST] Running Byte Encode/Decode function Test...
+[PASS] ByteEncode/Decode round-trip passed for d = 1
+[PASS] ByteEncode/Decode round-trip passed for d = 2
+[PASS] ByteEncode/Decode round-trip passed for d = 3
+[PASS] ByteEncode/Decode round-trip passed for d = 4
+[PASS] ByteEncode/Decode round-trip passed for d = 5
+[PASS] ByteEncode/Decode round-trip passed for d = 6
+[PASS] ByteEncode/Decode round-trip passed for d = 7
+[PASS] ByteEncode/Decode round-trip passed for d = 8
+[PASS] ByteEncode/Decode round-trip passed for d = 9
+[PASS] ByteEncode/Decode round-trip passed for d = 10
+[PASS] ByteEncode/Decode round-trip passed for d = 11
+[PASS] ByteEncode/Decode round-trip passed for d = 12
+
+[TEST] Running Hash function H Test...
+[PASS] Hash function H executed successfully
+[TEST] Running Hash function J Test...
+[PASS] Hash function J executed successfully
+[TEST] Running Hash function G Test...
+[PASS] Hash function G executed successfully
+
+[TEST] Running NTT and inverseNTT function Test...
+[PASS] NTT and inverseNTT executed successfully
+
+[TEST] Running NTT and inverseNTT function Test...
+[PASS] multiplyNTT returned executed size successfully
+[PASS] multiplyNTT returned executed output successfully
+
+Support Functions Tests Completed
+9 tests passed, 0 tests failed
+-------------------------------
+
+Test Main Functions
+-------------------------------
+
+[PASS] K-PKE.KeyGen(MLKEM512) completed!
+[PASS] K-PKE.Encrypt(MLKEM512) completed!
+[PASS] K-PKE.Decrypt(MLKEM512): shared secret key K successfully recovered.
+
+[PASS] K-PKE.KeyGen(MLKEM768) completed!
+[PASS] K-PKE.Encrypt(MLKEM768) completed!
+[PASS] K-PKE.Decrypt(MLKEM768): shared secret key K successfully recovered.
+
+[PASS] K-PKE.KeyGen(MLKEM1024) completed!
+[PASS] K-PKE.Encrypt(MLKEM1024) completed!
+[PASS] K-PKE.Decrypt(MLKEM1024): shared secret key K successfully recovered.
+
+-------------------------------
+
+All tests passed
+
+===============================
 ```
 
 ## 📄 Known Issues
-- Current implementation includes placeholder logic for most cryptographic functions, pending full algorithm integration.
-- Ensure OpenSSL libraries are correctly linked when building the project.
 - have not tested other methods of building on windows such as g++, or build systems like Ninja
