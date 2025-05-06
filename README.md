@@ -47,7 +47,7 @@ git clone git@github.com:KaiGVilbig/MLKEM.git
 cd MLKEM
 ```
 
-2. **Clone the BoringSSL Repository into `external/boringssl`
+2. **Clone the BoringSSL Repository into `external/boringssl`**
 ```sh
 git clone https://github.com/google/boringssl.git external/boringssl
 ```
