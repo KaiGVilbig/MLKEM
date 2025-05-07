@@ -62,17 +62,22 @@ from pythonWrapper import MLKEM512
 kem = MLKEM512()
 
 # Key Generation
-private_key = kem.keyGen()
-print(f"Private Key (dk): {private_key}")
+# Encryption key ek gets assigned in kem, decaps key dk returned
+dk = kem.keyGen()
 
 # Encapsulation
 shared_key, ciphertext = kem.encaps()
-print(f"Shared Key (K): {shared_key}")
-print(f"Ciphertext (c): {ciphertext}")
+print(f"Shared Key (K): bytes(shared_key).hex()")
+
+# To send over websocket:
+message_to_send = ctypes.string_at(ciphertext, ctypes.sizeof(ciphertext))_
 
 # Decapsulation
 derived_shared_key = kem.decaps(private_key, ciphertext)
 print(f"Derived Shared Key: {derived_shared_key}")
+
+# If sent over websocket:
+derived_shared_key = kem.decaps((c_uint8 * 1632)(dk), (c_uint8 * 768)(cophertext))
 
 # Verify that the shared keys match
 assert shared_key == derived_shared_key
