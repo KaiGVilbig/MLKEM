@@ -14,8 +14,6 @@ mlkem = loadLibrary()
 
 # MLKEM 512 structs
 class Keys512(Structure):
-    # Try with _pack_ = 1 and without it
-    # _pack_ = 1
     _fields_ = [("ek", c_uint8 * 800),
                 ("dk", c_uint8 * 1632)]
     
@@ -25,8 +23,6 @@ class KeyCipher512(Structure):
     
 # MLKEM 768 structs
 class Keys768(Structure):
-    # Try with _pack_ = 1 and without it
-    # _pack_ = 1
     _fields_ = [("ek", c_uint8 * 1184),
                 ("dk", c_uint8 * 2400)]
     
@@ -36,8 +32,6 @@ class KeyCipher768(Structure):
 
 # MLKEM 1024 structs
 class Keys1024(Structure):
-    # Try with _pack_ = 1 and without it
-    # _pack_ = 1
     _fields_ = [("ek", c_uint8 * 1568),
                 ("dk", c_uint8 * 3168)]
     
