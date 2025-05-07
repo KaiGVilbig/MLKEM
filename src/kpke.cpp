@@ -26,7 +26,6 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kpkeKeyGen(std::vector<uin
     std::tie(k, n, du, dv) = getVariant(variant);
 
     std::vector<uint8_t> dConcat = d;
-     //dConcat.push_back(static_cast<uint8_t>(k));
     std::pair<std::vector<uint8_t>, std::vector<uint8_t>> expanded = G(dConcat);
 
     std::vector<uint8_t> rho = expanded.first;
@@ -34,13 +33,13 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kpkeKeyGen(std::vector<uin
 
     int N = 0;
 
-    std::vector<std::vector<uint16_t>> A_hat(k * k);
+    std::vector<std::vector<uint16_t>> Ahat(k * k);
     for (int i = 0; i < k; ++i) {
         for (int j = 0; j < k; ++j) {
             std::vector<uint8_t> seed = rho;
             seed.push_back(static_cast<uint8_t>(j));
             seed.push_back(static_cast<uint8_t>(i));
-            A_hat[i * k + j] = SampleNTT(seed);
+            Ahat[i * k + j] = SampleNTT(seed);
         }
     }
 
@@ -61,24 +60,23 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kpkeKeyGen(std::vector<uin
         e[i] = NTT(e[i]);
     }
 
-    std::vector<std::vector<uint16_t>> t_hat(k, std::vector<uint16_t>(256, 0));
+    std::vector<std::vector<uint16_t>> tHat(k, std::vector<uint16_t>(256, 0));
     for (size_t i = 0; i < k; ++i) {
         for (size_t j = 0; j < k; ++j) {
-            std::vector<uint16_t> prod = multiplyNTT(A_hat[i * k + j], s[j]);
+            std::vector<uint16_t> prod = multiplyNTT(Ahat[i * k + j], s[j]);
 
             for (size_t idx = 0; idx < 256; ++idx) {
-                t_hat[i][idx] = modAdd(t_hat[i][idx], prod[idx]);
+                tHat[i][idx] = modAdd(tHat[i][idx], prod[idx]);
             }
         }
-        // Add e_hat[i]
         for (size_t idx = 0; idx < 256; ++idx) {
-            t_hat[i][idx] = modAdd(t_hat[i][idx], e[i][idx]);
+            tHat[i][idx] = modAdd(tHat[i][idx], e[i][idx]);
         }
     }
 
     std::vector<uint8_t> ekPKE;
     for (int i = 0; i < k; ++i) {
-        std::vector<uint8_t> encoded = byteEncode(t_hat[i], 12);
+        std::vector<uint8_t> encoded = byteEncode(tHat[i], 12);
         ekPKE.insert(ekPKE.end(), encoded.begin(), encoded.end());
     }
     ekPKE.insert(ekPKE.end(), rho.begin(), rho.end());
@@ -100,7 +98,6 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
 
     int N = 0;
 
-    // Step 1�2: Decode t? and extract ?
     size_t tHatBytes = (12 * 256 + 7) / 8;
     std::vector<std::vector<uint16_t>> tHat(k);
     for (int i = 0; i < k; ++i) {
@@ -109,7 +106,6 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
     }
     std::vector<uint8_t> rho(ek.end() - 32, ek.end());
 
-    // Step 3�7: Regenerate A_hat
     std::vector<std::vector<uint16_t>> Ahat(k * k);
     for (int i = 0; i < k; ++i) {
         for (int j = 0; j < k; ++j) {
@@ -120,7 +116,6 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
         }
     }
 
-    // Step 8�14: Generate y, e1, e2 using PRF
     std::vector<std::vector<uint16_t>> y(k), e1(k);
     std::vector<uint16_t> e2;
     for (int i = 0; i < k; i++) {
@@ -133,7 +128,6 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
     }
     e2 = samplePolyCBD(prfEta(n2, r, N), n2); N++;
 
-    // Step 15�17: NTT(y), compute u? = A?�? + �?
     for (int i = 0; i < k; ++i) y[i] = NTT(y[i]);
 
     std::vector<std::vector<uint16_t>> uHat(k, std::vector<uint16_t>(256, 0));
@@ -142,7 +136,6 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
         std::vector<uint16_t> acc(256, 0);
 
         for (int j = 0; j < k; ++j) {
-            // Aᵗ is accessed as A_hat[j * k + i]
             std::vector<uint16_t> prod = multiplyNTT(Ahat[j * k + i], y[j]);
             for (int l = 0; l < 256; ++l) {
                 acc[l] = (acc[l] + prod[l]) % q;
@@ -152,16 +145,13 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
         // Inverse NTT
         std::vector<uint16_t> u_i = inverseNTT(acc);
 
-        // Add e_u[i]
         for (int l = 0; l < 256; ++l) {
             uHat[i][l] = (u_i[l] + e1[i][l]) % q;
         }
     }
 
-    // Step 19: Decompress message m
     std::vector<uint16_t> mu = Decompress(byteDecode(m, 1), 1);  // returns 256 0/1 values
 
-    // Step 18: compute v? = t??�?
     std::vector<uint16_t> acc(256, 0);
 
     for (int i = 0; i < k; ++i) {
@@ -178,7 +168,6 @@ std::vector<uint8_t> kpkeEncrypt(std::vector<uint8_t> ek, std::vector<uint8_t> m
         v[j] = (v[j] + e2[j] + mu[j]) % q;
     }
 
-    // Step 21�23: Encode c? and c?
     std::vector<uint8_t> ciphertext;
     for (int i = 0; i < k; ++i) {
         auto compressed = Compress(uHat[i], du);
@@ -199,13 +188,9 @@ std::vector<uint8_t> kpkeDecrypt(std::vector<uint8_t> dk, std::vector<uint8_t> c
 
     std::tie(k, n, du, dv) = getVariant(variant);
 
-    // Step 1�2: Split ciphertext into c1 and c2
     size_t c1_bytes = ((du * 256 + 7) / 8) * k;
     size_t c2_bytes = (dv * 256 + 7) / 8;
 
-    //if (c.size() != c1_bytes + c2_bytes) {
-    //    throw std::runtime_error("Ciphertext size mismatch.");
-    //}
 
     std::vector<std::vector<uint16_t>> u(k);
     for (int i = 0; i < k; ++i) {
@@ -219,7 +204,6 @@ std::vector<uint8_t> kpkeDecrypt(std::vector<uint8_t> dk, std::vector<uint8_t> c
     auto decodedC2 = byteDecode(c2, dv);
     std::vector<uint16_t> v = Decompress(decodedC2, dv);
 
-    // Step 4: Decode s from secret key
     std::vector<std::vector<uint16_t>> s(k);
     size_t bytesPerPoly = (12 * 256 + 7) / 8;
     for (int i = 0; i < k; ++i) {
@@ -227,7 +211,6 @@ std::vector<uint8_t> kpkeDecrypt(std::vector<uint8_t> dk, std::vector<uint8_t> c
         s[i] = byteDecode(enc, 12);
     }
 
-    // Step 5�6: Compute w = inverseNTT(transpose(s) � NTT(u))
     std::vector<uint16_t> w(256, 0);
     for (int i = 0; i < k; ++i) {
         auto u_ntt = NTT(u[i]);
@@ -239,12 +222,10 @@ std::vector<uint8_t> kpkeDecrypt(std::vector<uint8_t> dk, std::vector<uint8_t> c
 
     w = inverseNTT(w);
 
-    // Step 7: w - v mod q
     for (int i = 0; i < 256; ++i) {
         w[i] = modSub(v[i], w[i]);
     }
 
-    // Step 8: ByteEncode from polynomial w using compress(., 1)
     auto compressed = Compress(w, 1);
 
     return byteEncode(compressed, 1);

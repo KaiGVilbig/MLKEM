@@ -5,7 +5,10 @@
 #include <cstdint>
 #include <openssl/evp.h>
 
+/// <summary>
+/// Generates a 32 random bytes using BoringSSL
+/// </summary>
+/// <returns>32 random  bytes</returns>
 std::vector<uint8_t> secureRandomBytes();
-//std::vector<uint8_t> PRF(std::vector<uint8_t>, int);
 
 #endif // RANDOM_H

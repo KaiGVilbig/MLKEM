@@ -2,12 +2,10 @@
 #include <cmath>
 #include <stdexcept>
 
-// Overflow safe multiply mod q
 uint16_t modMul(uint16_t a, uint16_t b) {
     return static_cast<uint16_t>((static_cast<uint32_t>(a) * b) % q);
 }
 
-// signed integer protected multiply mod q
 uint16_t modMulSigned(uint16_t a, int16_t b) {
     // Promote both to int32_t to avoid overflow
     int32_t result = static_cast<int32_t>(a) * static_cast<int32_t>(b);
@@ -24,12 +22,10 @@ uint16_t modAdd(uint16_t a, uint16_t b) {
     return (sum >= q) ? sum - q : sum;
 }
 
-// Underflow safe subtraction mod q
 uint16_t modSub(uint16_t a, uint16_t b) {
     return (a >= b) ? a - b : a + q - b;
 }
 
-// NTT using Cooley-Tukey Butterfly Operation
 std::vector<uint16_t> NTT(std::vector<uint16_t> f) {
     std::vector<uint16_t> fhat = f;
     uint8_t i = 1;
@@ -49,7 +45,6 @@ std::vector<uint16_t> NTT(std::vector<uint16_t> f) {
     return fhat;
 }
 
-// Inverse NTT to return to the coefficient domain
 std::vector<uint16_t> inverseNTT(std::vector<uint16_t> fhat) {
     std::vector<uint16_t> f = fhat;
     uint8_t i = 127;

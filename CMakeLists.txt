@@ -32,7 +32,7 @@ if(BORINGSSL_FOUND)
         src/boringssl_rand.cpp
         include/boringssl_rand.h
     )
-    target_link_libraries(boringssl_rand PRIVATE BoringSSL::ssl BoringSSL::crypto)
+    target_link_libraries(boringssl_rand PRIVATE crypto)
     target_include_directories(boringssl_rand PUBLIC ${BoringSSL_INCLUDE_DIR}) # Use the defined include
 endif()
 

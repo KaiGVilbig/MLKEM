@@ -1,13 +1,12 @@
 #include "byteEncode.h"
 #include <iostream>
 
-std::vector<uint8_t> byteEncode(const std::vector<uint16_t> F, uint8_t d) {
+std::vector<uint8_t> byteEncode(std::vector<uint16_t> F, uint8_t d) {
     size_t n = F.size(); // usually 256
     uint16_t m = (d < 12) ? (1 << d) : q;
 
     std::vector<uint8_t> bits(n * d, 0);
 
-    // Step 1–7: Extract bits
     for (size_t i = 0; i < n; ++i) {
         uint16_t a = F[i] % m;
         for (int j = 0; j < d; ++j) {
@@ -16,11 +15,10 @@ std::vector<uint8_t> byteEncode(const std::vector<uint16_t> F, uint8_t d) {
         }
     }
 
-    // Step 8: Use your existing BitsToBytes function
     return bitsToBytes(bits);
 }
 
-std::vector<uint16_t> byteDecode(const std::vector<uint8_t> B, uint8_t d) {
+std::vector<uint16_t> byteDecode(std::vector<uint8_t> B, uint8_t d) {
     std::vector<uint8_t> b = bytesToBits(B);
     std::vector<uint16_t> F(256, 0);
 
@@ -63,16 +61,6 @@ std::vector<uint8_t> bytesToBits(std::vector<uint8_t> B) {
     return b;
 }
 
-uint8_t bitRev(uint8_t ini) {
-    uint8_t reversedByte = 0;
-    for (int i = 0; i < 8; ++i) {
-        if ((ini >> i) & 1) {
-            reversedByte |= (1 << (7 - i));
-        }
-    }
-    return reversedByte / 2;
-}
-
 std::vector<uint16_t> Compress(std::vector<uint16_t> input, int d) {
     std::vector<uint16_t> output(input.size());
     uint16_t scale = 1 << d; // 2^d
@@ -82,7 +70,6 @@ std::vector<uint16_t> Compress(std::vector<uint16_t> input, int d) {
     }
     return output;
 }
-
 
 std::vector<uint16_t> Decompress(std::vector<uint16_t> input, int d) {
     std::vector<uint16_t> output(input.size());

@@ -6,12 +6,7 @@
 #include "hash.h"
 #include <vector>
 
-/*
-    Input: randomness d element of B^32
-    Input: randomness z element of B^32
-    Output: encapsulation key ek element of B^384k+32
-    Output: decapsulation key dk element of B^768k+96
-*/
+
 std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kemKeyGenInternal(std::vector<uint8_t> d, std::vector<uint8_t> z, Variants variant) {
     auto [ekpke, dkpke] = kpkeKeyGen(d, variant);
 
@@ -29,12 +24,6 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kemKeyGenInternal(std::vec
     return {ek, dk};
 }
 
-/*
-    Input: encapsulation key ek element of B^384k+32
-    Input: randomness m element of B^32
-    Output: shared secret key K element of B^32
-    Output: ciphertext c element of B^32(duk+dv)
-*/
 std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kemEncapsInternal(std::vector<uint8_t> ek, std::vector<uint8_t> m, Variants variant) {
     std::vector<uint8_t> hek = H(ek);
     std::vector<uint8_t> mhek;
@@ -48,12 +37,6 @@ std::pair<std::vector<uint8_t>, std::vector<uint8_t>> kemEncapsInternal(std::vec
     return { K, c };
 }
 
-
-/*
-    Input: decapsulation key dk element of B^768k+96
-    Input: ciphertext c element of B^32(duk+dv)
-    Output: shared secret key K element of B^32
-*/
 std::vector<uint8_t> kemDecapsInternal(std::vector<uint8_t> dk, std::vector<uint8_t> c, Variants variant) {
     int k = 0;
     switch (variant) {
